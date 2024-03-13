@@ -1,0 +1,11 @@
+{
+  "name": "jsutils",
+  "version": "1.0.0",
+  "description": "Techins Javascript Utilities",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "TechIns",
+  "license": "MIT"
+}
