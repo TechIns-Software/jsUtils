@@ -21,8 +21,28 @@ function getHostnameWithoutExtention(url){
     return domainParts[0].toLowerCase();
 }
 
+/**
+ * Updates the 
+ * @param {*} key 
+ * @param {*} value 
+ */
+function updateQueryParam(key, value) {
+    const currentUrl = new URL(window.location.href);
+    const params = new URLSearchParams(currentUrl.search);
+
+    if(!value){
+        params.delete(key)
+    } else {
+        params.set(key, value);
+    }
+
+    // Replace the current URL with the updated parameters
+    window.history.replaceState({}, document.title, `${currentUrl.pathname}?${params.toString()}`);
+}
+
 export {
     prependHttps,
     extractHostnameFromUrl,
-    getHostnameWithoutExtention
+    getHostnameWithoutExtention,
+    updateQueryParam
 }

@@ -1,7 +1,9 @@
 import $ from "jquery";
 import {Tab} from "bootstrap";
+import {updateQueryParam} from 'url.js'
 
 /**
+ * Checks is element is istring if is string it fetched the nessesary HTMLElement
  * @param {String|HTMLElement} element
  * @return HTMLElement
  */
@@ -189,32 +191,13 @@ function toogleEyePasword(whatInputSee,idOfEye){
 
 /**
  * Scans a form and updates the url parameters from eash input.
- * @param {*} form 
+ * @param {String | HTMLElement} form 
  */
 function replaceCurrentUrlQueryWithFormInput(form)
 {
     $(form).serializeArray().forEach((item)=>{
         updateQueryParam(item.name,item.value)
     })
-}
-
-/**
- * Updates the 
- * @param {*} key 
- * @param {*} value 
- */
-function updateQueryParam(key, value) {
-    const currentUrl = new URL(window.location.href);
-    const params = new URLSearchParams(currentUrl.search);
-
-    if(!value){
-        params.delete(key)
-    } else {
-        params.set(key, value);
-    }
-
-    // Replace the current URL with the updated parameters
-    window.history.replaceState({}, document.title, `${currentUrl.pathname}?${params.toString()}`);
 }
 
 /**
@@ -386,94 +369,6 @@ function enableTabs(navElement,tabId) {
     })
 }
 
-/**
- * If not direct clipboard manipulation supported from browser, use a alternate approach
- * It is used upon copyTextToClipboard function.
- *
- * Function was seen in: https://stackoverflow.com/a/30810322/4706711
- *
- * @param {String} text
- * @param {function} callback
- */
-function fallbackCopyTextToClipboard(text,callback) {
-    var textArea = document.createElement("textarea");
-    textArea.value = text;
-
-    // Avoid scrolling to bottom
-    textArea.style.top = "0";
-    textArea.style.left = "0";
-    textArea.style.position = "fixed";
-
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-
-    try {
-        var successful = document.execCommand('copy');
-        var msg = successful ? 'successful' : 'unsuccessful';
-        if(successful){
-            callback(null,text);
-        } else {
-            callback("Usucessfull copying of the value",text);
-        }
-        console.log('Fallback: Copying text command was ' + msg);
-    } catch (err) {
-        callback(err,text);
-        console.error('Fallback: Oops, unable to copy', err);
-    }
-
-    document.body.removeChild(textArea);
-}
-
-/**
- * Copy text into clipboard.
- *
- * Function from: https://stackoverflow.com/a/30810322/4706711
- *
- * @param {String} text
- * @param {function} callback
- */
-function copyTextToClipboard(text,callback) {
-    if (!navigator.clipboard) {
-        fallbackCopyTextToClipboard(text);
-        return;
-    }
-    navigator.clipboard.writeText(text).then(function() {
-        callback(null,text);
-        console.log('Async: Copying to clipboard was successful!');
-    }, function(err) {
-        callback(err,text);
-        console.error('Async: Could not copy text: ', err);
-    });
-}
-
-
-/**
- * Upon click copy value:
- *
- * This assumes that the button will have:
- * * data-val with the value copied upon
- * * the class 'btn-copy'
- *
- * @param {function} uponCopyCallback Callback that triggers an action once value is copied
- *
- */
-function copyvalueUponClickBtn(uponCopyCallback){
-    $(".btn-copy").on("click",(e)=>{
-       const element = e.target;
-       const text =$(element).data('val');
-
-
-       copyTextToClipboard(text,(err,text)=>{
-           if(typeof uponCopyCallback === 'function'){
-                uponCopyCallback(err,text,element)
-           }
-       });
-    });
-}
-
-
-
 export {
     submitFormAjax,
     onChangeSubmitForm,
@@ -482,12 +377,10 @@ export {
     toogleEyePasword,
     debounce,
     replaceCurrentUrlQueryWithFormInput,
-    updateQueryParam,
     changedFields,
     formEnable,
     getInputHavingName,
     resetFormFeedback,
     enableTabs,
-    copyvalueUponClickBtn,
     sendElementValueUponAjax
 }
