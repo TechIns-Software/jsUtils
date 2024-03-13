@@ -22,9 +22,11 @@ function getHostnameWithoutExtention(url){
 }
 
 /**
- * Updates the 
- * @param {*} key 
- * @param {*} value 
+ * Sets or updates the url parameter having name with value,
+ * Upon Url query string (https://en.wikipedia.org/wiki/Query_string)
+ * 
+ * @param {String} key 
+ * @param {String} value 
  */
 function updateQueryParam(key, value) {
     const currentUrl = new URL(window.location.href);

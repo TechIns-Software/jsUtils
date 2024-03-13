@@ -294,7 +294,8 @@ function formEnable(form,enable,resetFeedback=true){
 }
 
 /**
- * Retrieve the html input of a form having a name into its property
+ * Retrieves an the html input of a form having a name into its property.
+ * It looks for both textareas and normal inputs.
  * @param {HTMLElement} form
  * @param {String} name
  *
@@ -312,7 +313,7 @@ function getInputHavingName(form,name){
 
 /**
  * Resets the form from changed done in addInputErrorMsg
- * @param form
+ * @param {HTMLElement} form
  */
 function resetFormFeedback(form){
 
