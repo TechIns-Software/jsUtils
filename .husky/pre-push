@@ -1,0 +1,81 @@
+# 
+# Copyright 2024 Cypriot Free Software Foundation
+#
+# Permission is hereby granted, free of charge, 
+# to any person obtaining a copy of this software and associated documentation files (the “Software”), 
+# to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, 
+# sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+# subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+# THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
+# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+
+#!/bin/bash
+
+test -n "$BASH_VERSION" || exec /bin/bash $0 "$@"
+
+IFS=' '
+while read local_ref local_sha remote_ref remote_sha;do
+ echo "#"
+done
+
+current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
+
+if [ $current_branch != "master" ]; then
+  echo "Ommiting version bump because current branch is ${current_branch}" 
+  exit 0
+fi
+
+echo "Pushing ${current_branch}"
+
+current_version=$(npm run version -s)
+
+echo "Current version: $current_version"
+
+patch_version=$(npx semver $current_version -i patch)
+minor_version=$(npx semver $current_version -i minor)
+major_version=$(npx semver $current_version -i major)
+
+# Choose the version bump type
+PS3="Select the version bump type: "
+select bump_type in "patch - Bump into ${patch_version}" "minor - Bump into ${minor_version}" "major - Bump into ${major_version}" "none - Keep Same"; do
+
+  case $bump_type in
+    "patch"*)
+      # Increment version based on the chosen bump type
+      new_version="patch"
+      break
+      ;;
+    "minor"*)
+        new_version="minor"
+        break
+        ;;
+    "major"*)
+        new_version="major"
+        break
+        ;;
+    "none"*)
+      echo "No version selected, skipping bump."
+      exit 0
+      ;;
+    *)
+      echo "Invalid selection, please choose a valid option."
+      ;;
+  esac
+done <&2
+
+echo "Bumping version to $new_version"
+
+# Update package.json with the new version
+new_version=$(npm version ${new_version} --no-git-tag-version --no-commit-hooks --force --silent)
+
+echo "Version bumped to $new_version"
+
+echo "Keep package-lock.json up to spec"
+npm install
+git commit -m "AutoBump Version" package.json package-lock.json
