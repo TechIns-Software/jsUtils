@@ -2,14 +2,15 @@
   "name": "@techins/jsutils",
   "version": "1.0.1",
   "description": "Techins Javascript Utilities",
-  "main": "index.js",
+  "author": "TechIns",
+  "license": "MIT",
+  "exports": {
+    ".//":"./src"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "prepare": "husky",
     "version": "echo $npm_package_version"
   },
-  "author": "TechIns",
-  "license": "MIT",
   "dependencies": {
     "bootstrap": "^5.3.2",
     "jquery": "^3.7.1"
