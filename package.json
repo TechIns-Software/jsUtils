@@ -5,11 +5,15 @@
   "author": "TechIns",
   "license": "MIT",
   "exports": {
-    ".//": "./src"
+    "./clipboard": "./src/clipboard.js",
+    "./input-error": "./src/input-error.js",
+    "./url": "./src/url.js",
+    "./utils": "./src/utils.js"
   },
   "scripts": {
     "prepare": "husky",
-    "version": "echo $npm_package_version"
+    "version": "echo $npm_package_version",
+    "generate-exports": "node ./generate-exports.js"
   },
   "dependencies": {
     "bootstrap": "^5.3.2",
