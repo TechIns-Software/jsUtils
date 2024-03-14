@@ -37,18 +37,6 @@ jobs:
             node-version: 21
             registry-url: 'https://registry.npmjs.org'
 
-        - name: "Install npm dependencies"
-          run: npm ci
-
-        - name: commit built package.json
-          uses: actions-x/commit@v6
-          with:
-            email: actions@github.com
-            name: Mark Release as prerelease for npm
-            files: package.json
-            token: ${{ secrets.MY_SECRET_TOKEN }}
-            force: true
-
         - name: version
           id: version
           run: |
