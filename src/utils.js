@@ -1,6 +1,6 @@
 import $ from "jquery";
 import {Tab} from "bootstrap";
-import {updateQueryParam} from 'url.js'
+import {updateQueryParam} from './url.js'
 
 /**
  * Checks is element is istring if is string it fetched the nessesary HTMLElement
