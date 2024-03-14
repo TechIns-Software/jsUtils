@@ -20,9 +20,9 @@
 test -n "$BASH_VERSION" || exec /bin/bash $0 "$@"
 
 IFS=' '
-while read local_ref local_sha remote_ref remote_sha;do
- echo "#"
-done
+
+npm run generate-exports
+git commit -m "Autoganarated exports" package.json 
 
 current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
 
