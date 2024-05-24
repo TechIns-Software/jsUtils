@@ -76,7 +76,6 @@ function serializeFormInput(elementOrId) {
  */
 function submitFormAjax(form,successCallback,errorCallback,beforeSend,previousAjax){
 
-
     if(typeof form == "string"){
         form = document.getElementById(form);
 
@@ -332,6 +331,78 @@ function resetFormFeedback(form){
 }
 
 /**
+ * Submit an Ajax call with the checkbox element's value.
+ *
+ * This function is designed to work with a checkbox element that has specific data attributes.
+ * These data attributes should provide the necessary information for the Ajax request.
+ *
+ * Required data attributes:
+ * - `data-id`: The ID of the element.
+ * - `data-ajax-url`: The URL to which the Ajax request should be sent.
+ * - `data-extra-*`: Any additional data to be submitted. The `*` can be any string,
+ * - `data-previous-checked`: The
+ *   and the value will be included in the Ajax request.
+ *
+ * Example HTML:
+ * <input type="checkbox" id="tel-visible" name="visible"
+ *     data-id="123"
+ *     data-ajax-url="https://example.com/api/endpoint"
+ *     data-extra-_token="csrf_token_value"
+ *     data-extra-val="additional_value"
+ *     class="btn-check"/>
+ * <label class="btn btn-primary" for="tel-visible"><i class="fa fa-eye"></i></label>
+ *
+ * @param {String | HTMLElement} element - The checkbox element that triggered the Ajax call.
+ * @param {function} successCallback - The callback function to execute on a successful Ajax response.
+ * @param {function} failCallback - The callback function to execute on a failed Ajax response.
+ */
+function submitCheckBoxValueIntoAjax(element,successCallback,failCallback)
+{
+    element = stringToDomHtml(element);
+    const url = element.dataset['ajaxUrl']
+
+    if(url==''){
+        throw "URL is not defined";
+    }
+    const id = element.dataset['id']
+    const checked = element.checked
+    const previousValue = element.dataset.previousChecked?Boolean(parseInt(element.dataset.previousChecked)):false;
+
+    const extraData = {};
+    for (let attr of element.attributes) {
+        if (attr.name.startsWith('data-extra-')) {
+            // Remove 'data-extra-' prefix and add to extraData object
+            const key = attr.name.slice(11);
+            extraData[key] = attr.value;
+        }
+    }
+
+    $.ajax({
+        method: 'POST',
+        url:url,
+        data: $.param({
+            'id':id,
+            'checked':checked ? 1 : 0,
+            ...extraData
+        }),
+        success: function (response){
+            console.log(response)
+            element.dataset.previousChecked=checked
+            if(typeof successCallback == 'function'){
+                successCallback(element,response,checked)
+            }
+        },
+        error: function (xhr,status,error){
+            console.log(error)
+            element.checked=previousValue
+            if(typeof failCallback =='function'){
+                failCallback(element,xhr.response,xhr.status,checked)
+            }
+        }
+    })
+}
+
+/**
  * The following function bootsatraps the tab behaviour as follows:
  * 1. Sets default tab
  * 2. Changes the tab from url hastag
@@ -383,5 +454,6 @@ export {
     getInputHavingName,
     resetFormFeedback,
     enableTabs,
-    sendElementValueUponAjax
+    sendElementValueUponAjax,
+    submitCheckBoxValueIntoAjax
 }
