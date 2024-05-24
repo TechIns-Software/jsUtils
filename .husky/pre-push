@@ -26,7 +26,7 @@ git commit -m "Autoganarated exports" package.json
 
 current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
 
-if [ $current_branch != "master" ]; then
+if [ $current_branch != "dev" ]; then
   echo "Ommiting version bump because current branch is ${current_branch}" 
   exit 0
 fi
