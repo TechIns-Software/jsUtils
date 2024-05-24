@@ -8,7 +8,8 @@
     "./clipboard": "./src/clipboard.js",
     "./input-error": "./src/input-error.js",
     "./url": "./src/url.js",
-    "./utils": "./src/utils.js"
+    "./utils": "./src/utils.js",
+    "./visibility": "./src/visibility.js"
   },
   "scripts": {
     "prepare": "husky",
