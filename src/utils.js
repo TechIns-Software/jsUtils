@@ -352,6 +352,12 @@ function resetFormFeedback(form){
  *     class="btn-check"/>
  * <label class="btn btn-primary" for="tel-visible"><i class="fa fa-eye"></i></label>
  *
+ * The Ajax Sall is send via POST and wll accept at least these parameters:
+ * - id the is of the element that is being updated
+ * - checked wjheres checkbox is checked or not
+ * 
+ * And addictional values submitted is defined via data-extra-* html attributes as mentioned above.
+ * 
  * @param {String | HTMLElement} element - The checkbox element that triggered the Ajax call.
  * @param {function} successCallback - The callback function to execute on a successful Ajax response.
  * @param {function} failCallback - The callback function to execute on a failed Ajax response.
