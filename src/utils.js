@@ -76,17 +76,7 @@ function serializeFormInput(elementOrId) {
  */
 function submitFormAjax(form,successCallback,errorCallback,beforeSend,previousAjax){
 
-    if(typeof form == "string"){
-        form = document.getElementById(form);
-
-        if(!form){
-            form = document.querySelector(form)
-        }
-
-        if(!form){
-            throw "Form is not an element"
-        }
-    }
+    form = stringToDomHtml(form)
 
     if(!successCallback || !errorCallback){
         throw "Callbacks have not been Provided"
@@ -447,6 +437,32 @@ function enableTabs(navElement,tabId) {
     })
 }
 
+/**
+ * 
+ * Creates and populates a hidden input field in a form based on the checkbox's checked status.
+ * The hidden input is updated whenever the checkbox's state changes and takes the checkboxes name.
+ * 
+ * Also the checkbox's name is REMOVED after being placed into the hidden input's value
+ * 
+ * @param {string | HTMLElement } checkbox 
+ */
+function boolInputUponCheckboxCheckedStatus(checkbox)
+{
+    checkbox = stringToDomHtml(checkbox)
+    
+    const inputElem = document.createElement("input")
+    inputElem.type="hidden"
+    inputElem.name = checkbox.name
+    inputElem.value = inputElem.value = checkbox.checked?1:0
+    checkbox.name = ""
+
+    checkbox.form.append(inputElem)
+    
+    checkbox.addEventListener("change",(e)=>{
+        inputElem.value = checkbox.checked?1:0
+    })
+}
+
 export {
     submitFormAjax,
     onChangeSubmitForm,
@@ -461,5 +477,6 @@ export {
     resetFormFeedback,
     enableTabs,
     sendElementValueUponAjax,
-    submitCheckBoxValueIntoAjax
+    submitCheckBoxValueIntoAjax,
+    boolInputUponCheckboxCheckedStatus
 }
