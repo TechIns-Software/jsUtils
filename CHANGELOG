@@ -2,6 +2,8 @@
 Create Changelog
 Add function boolInputUponCheckboxCheckedStatus at utils.js
 
+Improve documentation.
+
 # v1.2.0
 Url Validation
 Submit Checkbox via ajax. Also do the same of an input element's value as well.
