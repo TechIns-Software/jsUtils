@@ -98,6 +98,7 @@ function submitFormAjax(form,successCallback,errorCallback,beforeSend,previousAj
             201: successCallback,
             200: successCallback,
             400: errorCallback,
+            422: errorCallback,
             500: errorCallback
         }
     }

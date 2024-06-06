@@ -1,3 +1,6 @@
+# v1.3.1
+Add error callback for 422 htt status upon utils.js at function  submitFormAjax.
+
 # v1.3.0
 Create Changelog
 Add function boolInputUponCheckboxCheckedStatus at utils.js
