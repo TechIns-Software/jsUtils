@@ -21,8 +21,14 @@ test -n "$BASH_VERSION" || exec /bin/bash $0 "$@"
 
 IFS=' '
 
+
+if [ "$BUMP_VERSION_DONE" == "true" ]; then
+  echo "Version Bumped pushing..."
+  exit 0;
+fi
+
 npm run generate-exports
-git commit -m "Autoganarated exports" package.json 
+git commit -m "[Husky pre-push hook] Autoganarated exports" package.json 
 
 current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
 
@@ -32,6 +38,7 @@ if [ $current_branch != "dev" ]; then
 fi
 
 echo "Pushing ${current_branch}"
+
 
 current_version=$(npm run version -s)
 
@@ -78,11 +85,12 @@ echo "Version bumped to $new_version"
 
 echo "Keep package-lock.json up to spec"
 npm install
-git commit -m "AutoBump Version" package.json package-lock.json
+git commit -m "[Husky pre-push hook] AutoBump Version" package.json package-lock.json
 
 
 # Push the new commit
 echo "Pushing the new commit"
-git push origin "$current_branch"
+git pull origin "$current_branch"
+BUMP_VERSION_DONE=true git push origin "$current_branch"
 
 echo "Finished pushing the new commit"
