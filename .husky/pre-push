@@ -19,14 +19,7 @@
 
 test -n "$BASH_VERSION" || exec /bin/bash $0 "$@"
 
-IFS=' '
-
-git pull origin "$current_branch"
-
-if [ "$BUMP_VERSION_DONE" == "true" ]; then
-  echo "Version Bumped pushing..."
-  exit 0;
-fi
+IFS=' 'git p
 
 npm run generate-exports
 git commit -m "[Husky pre-push hook] Autoganarated exports" package.json 
@@ -35,6 +28,7 @@ current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
 
 if [ $current_branch != "dev" ]; then
   echo "Ommiting version bump because current branch is ${current_branch}" 
+  git push origin --no-verify "$current_branch"
   exit 0
 fi
 
