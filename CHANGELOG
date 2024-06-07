@@ -1,3 +1,6 @@
+# v1.3.7
+Improved pre-push hook that also pushes commited files.
+
 # v1.3.1
 Add error callback for 422 htt status upon utils.js at function  submitFormAjax.
 
