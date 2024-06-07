@@ -91,6 +91,6 @@ git commit -m "[Husky pre-push hook] AutoBump Version" package.json package-lock
 
 # Push the new commit
 echo "Pushing the new commit"
-BUMP_VERSION_DONE=true git push origin "$current_branch"
+git push origin --no-verify "$current_branch"
 
 echo "Finished pushing the new commit"
