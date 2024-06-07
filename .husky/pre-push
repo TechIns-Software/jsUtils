@@ -79,3 +79,10 @@ echo "Version bumped to $new_version"
 echo "Keep package-lock.json up to spec"
 npm install
 git commit -m "AutoBump Version" package.json package-lock.json
+
+
+# Push the new commit
+echo "Pushing the new commit"
+git push origin "$current_branch"
+
+echo "Finished pushing the new commit"
