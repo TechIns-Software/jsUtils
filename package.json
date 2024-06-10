@@ -12,7 +12,6 @@
     "./visibility": "./src/visibility.js"
   },
   "scripts": {
-    "prepare": "husky",
     "version": "echo $npm_package_version",
     "generate-exports": "node ./generate-exports.js"
   },
@@ -21,7 +20,6 @@
     "jquery": "^3.7.1"
   },
   "devDependencies": {
-    "husky": "^9.0.11",
     "semver": "^7.6.0"
   },
   "repository": {

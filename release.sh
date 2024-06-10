@@ -17,23 +17,39 @@
 
 #!/bin/bash
 
-test -n "$BASH_VERSION" || exec /bin/bash $0 "$@"
 
-IFS=' 'git p
-
-npm run generate-exports
-git commit -m "[Husky pre-push hook] Autoganarated exports" package.json 
+IFS=' '
 
 current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
 
-if [ $current_branch != "dev" ]; then
+echo $current_branch
+
+if [[ $current_branch != "dev" ]]; then
   echo "Ommiting version bump because current branch is ${current_branch}" 
-  git push origin --no-verify "$current_branch"
-  exit 0
+  exit 1
 fi
 
-echo "Pushing ${current_branch}"
 
+current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
+
+echo -e "You are at branch \033[0;32$current_branch\033[0m"
+
+if [ $current_branch != "dev" ]; then
+  echo "Ommiting version bump because current branch is ${current_branch}"
+  echo "Please commit current changes, once done run"
+  echo -e "    \033[0;32git checkout dev\033[0m"
+  exit 1
+fi
+
+
+echo "Pulling any changes from remote"
+
+git pull origin dev
+
+if [ "$?" != "0" ]; then
+  echo "Unable to continue due ti unsucessfull pull"
+  exit $?
+fi
 
 current_version=$(npm run version -s)
 
@@ -43,6 +59,8 @@ patch_version=$(npx semver $current_version -i patch)
 minor_version=$(npx semver $current_version -i minor)
 major_version=$(npx semver $current_version -i major)
 
+version_num=""
+
 # Choose the version bump type
 PS3="Select the version bump type: "
 select bump_type in "patch - Bump into ${patch_version}" "minor - Bump into ${minor_version}" "major - Bump into ${major_version}" "none - Keep Same"; do
@@ -51,14 +69,17 @@ select bump_type in "patch - Bump into ${patch_version}" "minor - Bump into ${mi
     "patch"*)
       # Increment version based on the chosen bump type
       new_version="patch"
+      version_num=$patch_version
       break
       ;;
     "minor"*)
         new_version="minor"
+        version_num=$minor_version
         break
         ;;
     "major"*)
         new_version="major"
+        version_num=$major_version
         break
         ;;
     "none"*)
@@ -71,7 +92,15 @@ select bump_type in "patch - Bump into ${patch_version}" "minor - Bump into ${mi
   esac
 done <&2
 
+
 echo "Bumping version to $new_version"
+
+git flow release start "$version_num"
+
+if [ $? != 0 ]; then
+  echo "Unable to make a new release exit"
+  exit $?
+fi
 
 # Update package.json with the new version
 new_version=$(npm version ${new_version} --no-git-tag-version --no-commit-hooks --force --silent)
@@ -80,11 +109,30 @@ echo "Version bumped to $new_version"
 
 echo "Keep package-lock.json up to spec"
 npm install
-git commit -m "[Husky pre-push hook] AutoBump Version" package.json package-lock.json
+git commit -m "[Auto script] AutoBump Version to ${new_version}" package.json package-lock.json
 
+echo -e "\033[0;36mTo finish the release run:\033[0m"
+echo -e "\033[0;32mgit flow release finish $new_version\033[0m"
 
-# Push the new commit
-echo "Pushing the new commit"
-git push origin --no-verify "$current_branch"
+git commit -m "[Auto script] AutoBump Version to ${new_version}" package.json package-lock.json
 
-echo "Finished pushing the new commit"
+echo "Update Changelog"
+
+echo "# VERSION ${new_version}" | cat - CHANGELOG.md > temp && mv temp CHANGELOG.md
+
+echo "Opening editor to edit file"
+editor="$VISUAL"
+[ -z "$editor" ] && editor="$EDITOR"
+[ -z "$editor" ] && which editor >/dev/null && editor=editor
+[ -z "$editor" ] && which nano   >/dev/null && editor=nano
+[ -z "$editor" ] && which vim     >/dev/null && editor=vim
+[ -z "$editor" ] && which vi     >/dev/null && editor=vi
+[ -z "$editor" ] && editor=no_editor_found
+
+if [ "$editor" == 'no_editor_found' ]; then
+  echo "No editor has been found"
+fi
+
+$editor CHANGELOG.md
+
+git commit -m "[Auto script] Updated Changelog" CHANGELOG.md
