@@ -1,6 +1,7 @@
 # v2.0.0
 1. Utility for bootstrapping the event handlers upon a search form
 2. Function to prepend a row upon a table's tbody
+3. Remove `Contributing.md`
 
 # v1.3.9
 Do not use husky for releases but a manual script instead.
