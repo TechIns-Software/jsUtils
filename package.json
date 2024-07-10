@@ -1,12 +1,13 @@
 {
   "name": "@techins/jsutils",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Techins Javascript Utilities",
   "author": "TechIns",
   "license": "MIT",
   "exports": {
     "./clipboard": "./src/clipboard.js",
     "./input-error": "./src/input-error.js",
+    "./searchForm": "./src/searchForm.js",
     "./url": "./src/url.js",
     "./utils": "./src/utils.js",
     "./visibility": "./src/visibility.js"
