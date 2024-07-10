@@ -89,6 +89,7 @@ new_version=$(npm version ${new_version} --no-git-tag-version --no-commit-hooks 
 echo "Version bumped to $new_version"
 
 echo "Keep package-lock.json up to spec"
+npm run generate-exports
 npm install
 
 git commit -m "[Auto script] AutoBump Version to ${new_version}" package.json package-lock.json
