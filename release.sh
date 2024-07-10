@@ -111,11 +111,10 @@ editor="$VISUAL"
 [ -z "$editor" ] && which editor >/dev/null && editor=editor
 [ -z "$editor" ] && which nano   >/dev/null && editor=nano
 [ -z "$editor" ] && which vim     >/dev/null && editor=vim
-[ -z "$editor" ] && which vi     >/dev/null && editor=vi
 [ -z "$editor" ] && editor=no_editor_found
 
 if [ "$editor" == 'no_editor_found' ]; then
-  echo "No editor has been found"
+  echo "No editor has been found. vi is not used"
 fi
 
 $editor CHANGELOG.md
