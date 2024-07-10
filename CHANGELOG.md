@@ -1,3 +1,6 @@
+# v2.1.0
+Add function `errorResponseHandler` upon input-error.js
+
 # v2.0.1
 Fix package.json exports 
 
