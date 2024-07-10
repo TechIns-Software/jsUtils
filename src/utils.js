@@ -464,6 +464,22 @@ function boolInputUponCheckboxCheckedStatus(checkbox)
     })
 }
 
+/**
+ * Prepend an Html Row into a table's tbody indicated by table argument.
+ *
+ * @param { string | HTMLElement } table The table to append Data
+ * @param { string } data The html data containing the row
+ */
+function prependHtmlRowIntoATable(table,data)
+{
+    table = stringToDomHtml(table)
+    const tableBody=table.querySelector("tbody");
+    const element = document.createElement("template")
+    element.innerHTML=data
+
+    tableBody.prepend(element.content.firstChild)
+}
+
 export {
     submitFormAjax,
     onChangeSubmitForm,
@@ -479,5 +495,6 @@ export {
     enableTabs,
     sendElementValueUponAjax,
     submitCheckBoxValueIntoAjax,
-    boolInputUponCheckboxCheckedStatus
+    boolInputUponCheckboxCheckedStatus,
+    prependHtmlRowIntoATable
 }
