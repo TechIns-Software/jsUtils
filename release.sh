@@ -43,6 +43,12 @@ current_version=$(npm run version -s)
 
 echo "Current version: $current_version"
 
+echo "Keep package-lock.json up to spec"
+npm install
+npm run generate-exports
+
+git commit -m "[Auto script] Fix exported files upon package.json" package.json package-lock.json
+
 patch_version=$(npx semver $current_version -i patch)
 minor_version=$(npx semver $current_version -i minor)
 major_version=$(npx semver $current_version -i major)
