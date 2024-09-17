@@ -50,7 +50,75 @@ function toggleVisibilityBetween2Elements(elem1,elem2){
     }
 }
 
+/**
+ * Toggles the visibility of an element based on the checked state of a checkbox or radio input.
+ * Calls the appropriate callback functions when the element is shown or hidden.
+ *
+ * @param {String|HTMLElement} radioCheckboxInput Checkbox or radio input element (or its selector).
+ * @param {String|HTMLElement} element The element to show or hide (or its selector).
+ * @param {Function} [hideCallback] Function to execute when the element is hidden.
+ * @param {Function} [showCallback] Function to execute when the element is shown.
+ */
+function toggleElementVisibility(radioCheckboxInput, element, hideCallback, showCallback) {
+    const inputElement = stringToDomHtml(radioCheckboxInput);
+    const targetElement = stringToDomHtml(element);
+
+    if (!inputElement || !targetElement) return;
+
+    if (inputElement.checked) {
+        targetElement.hidden = false;
+        if (typeof showCallback === "function") {
+            showCallback(targetElement);
+        }
+    } else {
+        targetElement.hidden = true;
+        if (typeof hideCallback === "function") {
+            hideCallback(targetElement);
+        }
+    }
+}
+
+/**
+ * Resets the value of an input element or all input elements within a container.
+ *
+ * @param {String|HTMLElement} element A single input element or a container with input elements.
+ */
+function resetInputElement(element) {
+    const targetElement = stringToDomHtml(element);
+
+    if (!targetElement) return;
+
+    if (targetElement instanceof HTMLInputElement) {
+        resetElement(targetElement);
+    } else {
+        targetElement.querySelectorAll('input').forEach((input) => {
+            resetElement(input);
+        });
+    }
+}
+
+/**
+ * Reset the Input element into default values.
+ * @param {HTMLInputElement|HTMLTextAreaElement|String} el
+ */
+function resetElement(el){
+    const element = stringToDomHtml(el)
+    if (element instanceof HTMLInputElement) {
+        if (element.type === 'checkbox' || element.type === 'radio') {
+            element.checked = false;
+        } else {
+            element.value = "";
+        }
+    } else if (element instanceof HTMLTextAreaElement) {
+        element.value = "";
+    }
+}
+
+
 export {
     isVisible,
-    toggleVisibilityBetween2Elements
+    toggleVisibilityBetween2Elements,
+    toggleElementVisibility,
+    resetInputElement,
+    resetElement
 }
