@@ -1,3 +1,10 @@
+# v2.2.0
+Add following functions:
+
+* `toggleElementVisibility` that makes an element visible or not depending if checkbox or radio is checked
+* `resetInputElement` That resets the value of an input element if element is not an input one it scans for ant input element in it:
+* `resetElement` Directly reset the value of an in put element
+
 # v2.1.0
 Add function `errorResponseHandler` upon input-error.js
 
