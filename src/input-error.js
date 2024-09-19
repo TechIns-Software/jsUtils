@@ -97,13 +97,25 @@ function displayExistingErrorMessage(inputElem){
  *                           - {boolean} hasErrors - Indicates if there were validation errors (true for status 400, false otherwise).
  *                           - {Object|string} msg - The error messages object or string from the response.
  *                           - {Object} xhr - The original XMLHttpRequest response object.
+ * @param {String|HTMLElement} [parentElement] Parent Element to check for input elements if ommited defaults to document
+ * @throws Error
  */
-function errorResponseHandler(xhr,next){
+function errorResponseHandler(xhr,next,parentElement){
     const responseJson = JSON.parse(xhr.responseText)['msg']
+    if(typeof next !== 'function'){
+        throw new Error("Next is not a function");
+    }
+
+    if(parentElement){
+        parentElement=stringToDomHtml(parentElement)
+    }
+
+    const parentElementFinal = parentElement??document;
+
     if(xhr.status == 400){
         Object.keys(responseJson).forEach((key)=>{
             const msg = responseJson[key].join("<br>")
-            addInputErrorMsg(document.querySelector(`input[name=${key}]`),msg)
+            addInputErrorMsg(parentElementFinal.querySelector(`input[name=${key}]`),msg)
         })
         next(true,responseJson,xhr);
         return
@@ -116,5 +128,5 @@ export {
     addInputErrorMsg,
     clearInputErrorMessage,
     displayExistingErrorMessage,
-    errorResponseHandler
+    errorResponseHandler,
 }
