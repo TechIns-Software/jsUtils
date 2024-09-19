@@ -1,3 +1,13 @@
+# v2.2.1
+1. Fix typo upon release-npm.yml
+2. Improve function prependHtmlRowIntoATable. 
+
+Upon Improvement in prependHtmlRowIntoATable include the following:
+
+1. Check whether table is a table ot a tbody
+2. Conditional detecting to a tbody
+3. Clone nodes that are appended.
+
 # v2.2.0
 Add following functions:
 
