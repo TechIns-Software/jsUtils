@@ -1,3 +1,4 @@
+import {stringToDomHtml} from './utils';
 
 /**
  * Removes any input error
