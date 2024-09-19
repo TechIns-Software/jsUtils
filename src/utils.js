@@ -465,19 +465,32 @@ function boolInputUponCheckboxCheckedStatus(checkbox)
 }
 
 /**
- * Prepend an Html Row into a table's tbody indicated by table argument.
+ * Prepends an HTML row into the provided table or tbody element.
  *
- * @param { string | HTMLElement } table The table to append Data
- * @param { string } data The html data containing the row
+ * This function takes a string representation of an HTML row and inserts it at the beginning
+ * of the table or tbody element's content. It ensures that the provided table parameter
+ * is either a valid HTML table or tbody element, and throws an error if it's not.
+ *
+ * @param {HTMLElement|string} table - The HTML table or tbody element (or its string representation)
+ * where the row will be prepended.
+ * @param {string} rowHtml - The HTML string representing the row to be inserted.
+ *
+ * @throws Will throw an error if the provided element is neither a table nor a tbody.
  */
-function prependHtmlRowIntoATable(table,data)
+function prependHtmlRowIntoATable(table,rowHtml)
 {
-    table = stringToDomHtml(table)
-    const tableBody=table.querySelector("tbody");
-    const element = document.createElement("template")
-    element.innerHTML=data
+    const tableElement = stringToDomHtml(table);
+    const elementTag = tableElement.tagName;
 
-    tableBody.prepend(element.content.firstChild)
+    if (elementTag !== 'TABLE' && elementTag !== 'TBODY') {
+        throw new Error("Element is not a table or tbody");
+    }
+
+    const tbody = elementTag === 'TBODY' ? tableElement : tableElement.querySelector("tbody");
+    const wrapper = document.createElement('template');
+    wrapper.innerHTML = rowHtml;
+
+    tbody.prepend(wrapper.content.cloneNode(true));
 }
 
 export {
