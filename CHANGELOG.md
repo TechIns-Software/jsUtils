@@ -1,3 +1,6 @@
+# v2.2.2
+Improved errorResponseHandler
+
 # v2.2.1
 1. Fix typo upon release-npm.yml
 2. Improve function prependHtmlRowIntoATable. 
