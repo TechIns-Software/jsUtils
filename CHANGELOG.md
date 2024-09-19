@@ -1,3 +1,6 @@
+# v2.3.1
+Import missinf function call in input-error.js
+
 # v2.3.0
 Improved errorResponseHandler. This function now acepts an optionale Third argument with the parent element to look for inputs
 
