@@ -1,5 +1,5 @@
-# v2.2.2
-Improved errorResponseHandler
+# v2.3.0
+Improved errorResponseHandler. This function now acepts an optionale Third argument with the parent element to look for inputs
 
 # v2.2.1
 1. Fix typo upon release-npm.yml
