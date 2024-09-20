@@ -1,3 +1,6 @@
+# v3.0.1
+Add missing method call upon modal.js
+
 # v3.0.0
 Add Form Modal Submission method upon modal.js
 
