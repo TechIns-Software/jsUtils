@@ -47,6 +47,7 @@ Utilities for managing the bootstrap's input error (Message shown uindernetath i
 
 Utilities for managing the element's visibility upon DOM
 
+
 ## @techins/jsutils/searchForm
 
 A Search Form Bootstrapper. This is a js that bootstraps the event listeners for this specific form:
@@ -69,9 +70,59 @@ Also feel free to style the form using a css framework such as bootstrap (or eve
  
  <form id="{{$id}}" method="get" class="mt-2 mb-2" action="{{route($action)}}">
    <div class="input-group mb-3">
-       <input  name="name" class="form-control inputSearchField" ">
+       <input  name="name" class="form-control inputSearchField">
        <button class="cleanSearch btn btn-outline-secondary" type="button"><i class="fa fa-x"></i></button>
        <button class="btn btn-secondary" type="submit"><i class="fa fa-search"></i></button>
    </div>
 </form>
 ```
+
+## @techins/jsutils/modal
+
+This file contains a single function named `submitFormUponModalUsingAjax` that one bootstraps the submission of a form that resides indide a modal for example:
+
+```
+<div class="modal fade" id="someId" tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Modal With a form</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="#">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="name" class="col-form-label">Name:</label>
+                        <input type="text" class="form-control" name="name" id="name" required>
+                    </div>
+                    <!--- Extra Inputs here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+```
+
+```
+import {submitFormUponModalUsingAjax} from "@techins/jsutils/modal"
+
+submitFormUponModalUsingAjax(subscriptionEditFormModal,(form,data,modal)=>{
+   // Upon Success DO stuff
+},(ajaxCalled,is400,responseJson,xhr)=>{
+    if(ajaxCalled && is400){
+       // The form has been submitted upon server and error 400 is retuend
+    }
+
+    if(ajaxCalled){
+      // The form has been submitted upon server and error is returned but not witth 400 Http Status
+    }
+
+    // responseJson is the ajax Response
+})
+```
+
+There are some extra arguments that receive callback look upon src/modal.js for full documentation.
