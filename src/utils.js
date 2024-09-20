@@ -493,6 +493,8 @@ function prependHtmlRowIntoATable(table,rowHtml)
     tbody.prepend(wrapper.content.cloneNode(true));
 }
 
+
+
 export {
     submitFormAjax,
     onChangeSubmitForm,
@@ -509,5 +511,5 @@ export {
     sendElementValueUponAjax,
     submitCheckBoxValueIntoAjax,
     boolInputUponCheckboxCheckedStatus,
-    prependHtmlRowIntoATable
+    prependHtmlRowIntoATable,
 }

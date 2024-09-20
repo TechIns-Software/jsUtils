@@ -10,7 +10,8 @@
     "./searchForm": "./src/searchForm.js",
     "./url": "./src/url.js",
     "./utils": "./src/utils.js",
-    "./visibility": "./src/visibility.js"
+    "./visibility": "./src/visibility.js",
+    "./modal":"./src/modal.js"
   },
   "scripts": {
     "version": "echo $npm_package_version",
