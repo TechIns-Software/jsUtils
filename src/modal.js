@@ -1,4 +1,4 @@
-import { submitFormAjax } from "./utils";
+import { submitFormAjax,stringToDomHtml } from "./utils";
 import { Modal } from "bootstrap";
 import { clearInputErrorMessage } from "./input-error";
 
