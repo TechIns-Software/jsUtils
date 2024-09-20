@@ -1,3 +1,6 @@
+# v3.0.0
+Add Form Modal Submission method upon modal.js
+
 # v2.3.1
 Import missinf function call in input-error.js
 
