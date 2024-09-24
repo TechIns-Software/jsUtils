@@ -1,3 +1,6 @@
+# v3.0.3
+Place unhandled inputs upon errorResponseHandler.
+
 # v3.0.2
 Add missing errorResponseHandler method call upon modal.js
 
