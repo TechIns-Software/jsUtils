@@ -1,3 +1,6 @@
+# v3.0.2
+Add missing errorResponseHandler method call upon modal.js
+
 # v3.0.1
 Add missing method call upon modal.js
 
