@@ -95,9 +95,10 @@ function displayExistingErrorMessage(inputElem){
  * @param {Object} xhr - The XMLHttpRequest response object.
  * @param {Function} next - The callback function to be called for further handling.
  *                           The function is called with the following arguments:
- *                           - {boolean} hasErrors - Indicates if there were validation errors (true for status 400, false otherwise).
- *                           - {Object|string} msg - The error messages object or string from the response.
+ *                           - {boolean} is400 - Indicates if there were validation errors (true for status 400, false otherwise).
+ *                           - {Object|string} responseJson - The error messages object or string from the response.
  *                           - {Object} xhr - The original XMLHttpRequest response object.
+ *                           - {array} unhandledInputs Upon error 400 place any error in case an input is missing
  * @param {String|HTMLElement} [parentElement] Parent Element to check for input elements if ommited defaults to document
  * @throws Error
  */
@@ -112,17 +113,22 @@ function errorResponseHandler(xhr,next,parentElement){
     }
 
     const parentElementFinal = parentElement??document;
-
+    const unhandledInputs=[]
     if(xhr.status == 400){
         Object.keys(responseJson).forEach((key)=>{
             const msg = responseJson[key].join("<br>")
-            addInputErrorMsg(parentElementFinal.querySelector(`input[name=${key}]`),msg)
+            const elem = parentElementFinal.querySelector(`input[name=${key}]`)
+            if(!elem){
+                unhandledInputs[key]=msg
+                return;
+            }
+            addInputErrorMsg(elem,msg)
         })
-        next(true,responseJson,xhr);
+        next(true,responseJson,xhr,unhandledInputs);
         return
     }
 
-    next(false,responseJson,xhr)
+    next(false,responseJson,xhr,null)
 }
 
 export {

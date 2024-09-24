@@ -45,9 +45,9 @@ function submitFormUponModalUsingAjax(modalElem,submitSuccessCallback,submitFail
     // Callback function upon submit
     const formSubmitAjaxCallback = (e)=>{
         submitFormAjax(form,(data)=>submitSuccessCallback(form,data,modal),(jqxhr)=>{
-            errorResponseHandler(jqxhr,(is400,responseJson,xhr)=>{
+            errorResponseHandler(jqxhr,(is400,responseJson,xhr,unhandledInputs)=>{
                 if(is400) {
-                    if(typeof submitFailureCallback === 'function'){submitFailureCallback(true,is400,responseJson,xhr);}
+                    if(typeof submitFailureCallback === 'function'){submitFailureCallback(true,is400,responseJson,xhr,unhandledInputs);}
                     return;
                 }
                 modal.hide();
