@@ -1,6 +1,6 @@
 import { submitFormAjax,stringToDomHtml } from "./utils";
 import { Modal } from "bootstrap";
-import { clearInputErrorMessage } from "./input-error";
+import { clearInputErrorMessage,errorResponseHandler } from "./input-error";
 
 /**
  * Bootstraps and handles the submission of a form inside a modal, using AJAX for form submission.
