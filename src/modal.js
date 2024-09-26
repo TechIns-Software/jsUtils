@@ -1,4 +1,4 @@
-import { submitFormAjax,stringToDomHtml } from "./utils";
+import { submitFormAjax,stringToDomHtml,formEnable } from "./utils";
 import { Modal } from "bootstrap";
 import { clearInputErrorMessage,errorResponseHandler } from "./input-error";
 
@@ -34,7 +34,7 @@ function submitFormUponModalUsingAjax(modalElem,submitSuccessCallback,submitFail
     const modal= Modal.getOrCreateInstance(modalElement);
 
     modalElem.addEventListener('hidden.bs.modal',(e)=>{
-        form.querySelectorAll('input').forEach(input=>{clearInputErrorMessage(input)});
+        formEnable(form,true,true)
         form.reset();
 
         if(typeof onModalClose === 'function'){
@@ -42,18 +42,31 @@ function submitFormUponModalUsingAjax(modalElem,submitSuccessCallback,submitFail
         }
     });
 
+    const finalBeforeSend = (jqXHR,settings)=>{
+        formEnable(form,false)
+        if(typeof beforeSend === 'function'){
+            beforeSend(jqXHR,settings)
+        }
+    }
+    
     // Callback function upon submit
     const formSubmitAjaxCallback = (e)=>{
         submitFormAjax(form,(data)=>submitSuccessCallback(form,data,modal),(jqxhr)=>{
             errorResponseHandler(jqxhr,(is400,responseJson,xhr,unhandledInputs)=>{
-                if(is400) {
-                    if(typeof submitFailureCallback === 'function'){submitFailureCallback(true,is400,responseJson,xhr,unhandledInputs);}
-                    return;
+                
+                if(typeof submitFailureCallback === 'function'){
+                    Promise.resolve(submitFailureCallback(true,is400,responseJson,xhr,unhandledInputs)).then(()=>{
+                        formEnable(form,true,true)
+                        if(!is400) {
+                            modal.hide();
+                        }
+                    }).catch(e=>{
+                        formEnable(form,true,true)
+                        console.error(e)
+                    })
                 }
-                modal.hide();
-                if(typeof submitFailureCallback === 'function'){submitFailureCallback(true,is400,responseJson,xhr)}
             },form)
-        },beforeSend)
+        },finalBeforeSend)
     }
 
 
@@ -66,13 +79,16 @@ function submitFormUponModalUsingAjax(modalElem,submitSuccessCallback,submitFail
             // Thus I use promise to always ensure that ajax call is submited 
             Promise.resolve(onSubmitHandle(e, form, modalElem, modal)).then(()=>{
                 formSubmitAjaxCallback(e);
+                formEnable(form,true,true)
             }).catch((error)=>{
                 if (typeof submitFailureCallback === 'function') {
                     submitFailureCallback(false, error);
                 }
+                formEnable(form,true,true)
             })
         } else {
             formSubmitAjaxCallback(e);
+            formEnable(form,true,true)
         }
     });
 }
