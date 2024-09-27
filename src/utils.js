@@ -271,7 +271,15 @@ function changedFields(form){
  * @param {Boolean}  resetFeedback Resets the Input feedback.
  */
 function formEnable(form,enable,resetFeedback=true){
+
+    form = stringToDomHtml(form)
+
     const submitBtn = form.querySelector(`button[type="submit"]`)?? document.querySelector(`button[form="${form.id}"][type="submit"]`);
+    
+    if(!submitBtn){
+        throw Error("Unable to enable or disable form")
+    }
+
     if(enable){
         submitBtn.removeAttribute("disabled");
     } else {
