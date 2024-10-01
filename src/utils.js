@@ -320,7 +320,6 @@ function resetFormFeedback(form){
         .forEach(element=>element.style.removeProperty("display"));
 
     form.querySelectorAll(`input:not([type="hidden"])`).forEach(element=>{
-        console.log(element)
         element.classList.remove('is-invalid')
         element.classList.remove('is-valid')
         element.setCustomValidity("");

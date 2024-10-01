@@ -103,6 +103,12 @@ function submitFormUponModalUsingAjax(modalElem,submitSuccessCallback,submitFail
         formEnable(form,true,true)
         form.reset();
 
+        // Sometimes Backdrop may not be removed upon modal closure So I chack for it and I manually remove it as a workaround.
+        const backdrop = document.querySelector(".modal-backdrop");
+        if(backdrop){
+            backdrop.remove();
+        }
+        
         if(typeof onModalClose === 'function'){
             onModalClose(modalElem,modal,form);
         }
