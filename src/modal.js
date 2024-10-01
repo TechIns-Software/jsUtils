@@ -3,6 +3,72 @@ import { Modal } from "bootstrap";
 import { clearInputErrorMessage,errorResponseHandler } from "./input-error";
 
 /**
+ * Display a Bootstrap 5 alert inside a modal.
+ * 
+ * This function inserts a Bootstrap 5 "danger" alert at the top of the modal body. 
+ * It can accept either a string (selector) or an HTMLElement for the modalElement parameter.
+ * 
+ * @param {String|HTMLElement} modalElement - The modal element or a string selector of the modal in which the alert should be displayed.
+ * @param {String} alertMsg - The message to display inside the alert.
+ * 
+ * @example
+ * // Using a string selector
+ * addAlertUpoModal('#myModal', 'An error has occurred!');
+ * 
+ * // Using an HTMLElement
+ * const modal = document.getElementById('myModal');
+ * addAlertUpoModal(modal, 'An error has occurred!');
+ * 
+ */
+function addAlertUpoModal(modalElement,alertMsg)
+{
+    const alert=document.createElement('div')
+    alert.classList.add('alert');
+    alert.classList.add('alert-danger');
+    alert.setAttribute('role','alert');
+    alert.setAttribute('data-js','true');
+
+    alert.innerHTML=alertMsg;
+
+    modalElement = stringToDomHtml(modalElement)
+    const alertContainer = modalElement.querySelector('.modal-body');
+    alertContainer.insertBefore(alert,alertContainer.firstChild)
+}
+
+/**
+ * Remove all Bootstrap 5 alerts created by JavaScript from a modal.
+ * 
+ * This function removes any alert elements with the `data-js="true"` attribute
+ * from the modal body, which were previously added by JavaScript.
+ * 
+ * It can be used to revert the effect of addAlertUpoModal
+ * 
+ * @param {String|HTMLElement} modalElement - The modal element or a string selector of the modal from which alerts should be removed.
+ * 
+ * @example
+ * // Using a string selector
+ * removeAlertsFromModal('#myModal');
+ * 
+ * // Using an HTMLElement
+ * const modal = document.getElementById('myModal');
+ * // Add alert
+ * addAlertUpoModal(modal, 'An error has occurred!');
+ * 
+ * // Remove alert
+ * removeAlertsFromModal(modal);
+ * 
+ * 
+ */
+function removeAlertsFromModal(modalElement){
+    modalElement = stringToDomHtml(modalElement)
+    const alertContainer = modalElement.querySelector('.modal-body');
+    alertContainer.querySelectorAll('.alert[data-js=true]').forEach(el=>{
+        console.log(el)
+        el.remove();
+    })
+}
+
+/**
  * Bootstraps and handles the submission of a form inside a modal, using AJAX for form submission.
  * Upon Close also handles the form cleanup
  *
@@ -94,5 +160,7 @@ function submitFormUponModalUsingAjax(modalElem,submitSuccessCallback,submitFail
 }
 
 export {
-    submitFormUponModalUsingAjax
+    submitFormUponModalUsingAjax,
+    addAlertUpoModal,
+    removeAlertsFromModal
 }
