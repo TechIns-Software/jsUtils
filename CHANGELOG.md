@@ -1,3 +1,7 @@
+# v3.1.1
+1. Manually remove Backdrop upon Modal Closing in submitFormUponModalUsingAjax (workaround)
+2. Remove Debuf console log from resetFormFeedback
+
 # v3.1.0
 New feature functions to display and remove alerts upon modal.
 
