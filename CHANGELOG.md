@@ -1,3 +1,6 @@
+# v3.1.0
+New feature functions to display and remove alerts upon modal.
+
 # v3.0.3
 Place unhandled inputs upon errorResponseHandler.
 
