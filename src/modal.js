@@ -79,7 +79,7 @@ function removeAlertsFromModal(modalElement){
  * - Second argument: the data received from the AJAX request.
  * - Third argument: the Bootstrap modal instance.
  * 
- * @param {function(boolean, boolean, Object, XMLHttpRequest):void} submitFailureCallback - Function executed when the form submission fails.
+ * @param {function(boolean, boolean, Object, XMLHttpRequest,function(error)):void} ajaxFailureCallback - Function executed when the ajax call upon form fails.
  * - First argument: whether the AJAX call was made.
  * - Second argument: whether the failure was a 400 (Bad Request) error.
  * - Third argument: the response data, which should contain at least a `msg` property with an error message.
@@ -101,7 +101,7 @@ function removeAlertsFromModal(modalElement){
  * - Second argument: the Bootstrap modal instance.
  * - Third argument: the form element inside the modal.
  */
-function submitFormUponModalUsingAjax(modalElem,submitSuccessCallback,submitFailureCallback,beforeSend,onSubmitHandle,onModalClose) {
+function submitFormUponModalUsingAjax(modalElem,submitSuccessCallback,ajaxFailureCallback,beforeSend,onSubmitHandle,onModalClose,formSubmitErrorHandleBeforeAjax) {
     const modalElement = stringToDomHtml(modalElem)
 
     const form = modalElement.querySelector('form');
@@ -150,7 +150,7 @@ function submitFormUponModalUsingAjax(modalElem,submitSuccessCallback,submitFail
         (jqxhr)=>{
             errorResponseHandler(jqxhr,(is400,responseJson,xhr,unhandledInputs)=>{
                 if(typeof submitFailureCallback === 'function'){
-                    submitFailureCallback(true,null,is400,responseJson,xhr,unhandledInputs,(error)=>{
+                    ajaxFailureCallback(true,null,is400,responseJson,xhr,unhandledInputs,(error)=>{
                         __ajaxError(is400,error)
                     });
                 }
@@ -158,19 +158,16 @@ function submitFormUponModalUsingAjax(modalElem,submitSuccessCallback,submitFail
         },__beforeSend)
     }
 
+    if (typeof formSubmitErrorHandleBeforeAjax !== 'function') {
+        formSubmitErrorHandleBeforeAjax=(error,event, form, modalElem, modal)=>{
+            formEnable(form,true,true)
+        }
+    }
+
     // Submit
     const __handle = (error, event, form, modalElem, modal)=>{
         if(error){
-            if (typeof submitFailureCallback === 'function') {
-                submitFailureCallback(false, error,false,null,null,[],(error)=>{
-                    if(error){
-                        console.error(error)
-                        return;
-                    }
-                });
-            }
-            formEnable(form,true,true)
-
+            formSubmitErrorHandleBeforeAjax(error,event, form, modalElem, modal)
             return
         }
 
