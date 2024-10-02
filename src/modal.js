@@ -122,7 +122,7 @@ function submitFormUponModalUsingAjax(modalElem,submitSuccessCallback,submitFail
         }
     });
 
-    const finalBeforeSend = (jqXHR,settings)=>{
+    const __beforeSend = (jqXHR,settings)=>{
         formEnable(form,false)
         if(typeof beforeSend === 'function'){
             beforeSend(jqXHR,settings)
@@ -141,7 +141,7 @@ function submitFormUponModalUsingAjax(modalElem,submitSuccessCallback,submitFail
         }
     }
 
-    // Callback function upon submit
+    // Ajax Handler
     const __formSubmitAjaxCallback = (e)=>{
         submitFormAjax(form,(data)=>{
             formEnable(form,true,true)
@@ -155,14 +155,20 @@ function submitFormUponModalUsingAjax(modalElem,submitSuccessCallback,submitFail
                     });
                 }
             },form)
-        },finalBeforeSend)
+        },__beforeSend)
     }
 
+    // Submit
     const __handle = (error, event, form, modalElem, modal)=>{
         if(error){
-            console.error("Caught",error)
             if (typeof submitFailureCallback === 'function') {
-                submitFailureCallback(false, error);
+                submitFailureCallback(false, error,false,null,null,[],(error)=>{
+                    formEnable(form,true,true)
+                    if(error){
+                        console.error(error)
+                        return;
+                    }
+                });
             }
             formEnable(form,true,true)
 
@@ -178,8 +184,14 @@ function submitFormUponModalUsingAjax(modalElem,submitSuccessCallback,submitFail
         e.stopPropagation();
 
         if(typeof onSubmitHandle === 'function'){
-            console.log("Handle On submit Here")
-            onSubmitHandle(e, form, modalElem, modal,__handle)
+            try{
+                onSubmitHandle(e, form, modalElem, modal,(error) => {
+                    __handle(error,e,form, modalElem, modal)
+                });
+            } catch(error){
+                // Upon onSubmitHandle developer may also throw an error I need to handle it as well 
+                __handle(error,e,form, modalElem, modal)
+            }
         } else {
            __handle(false,form, modalElem, modal)
         }
