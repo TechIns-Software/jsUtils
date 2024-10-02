@@ -1,6 +1,29 @@
+# v3.2.0 - 2024-10-02
+
+## Added
+
+### Enhanced Error Handling:
+  1. Introduced ajaxFailureCallback in submitFormUponModalUsingAjax to handle AJAX failure more explicitly and modularly.
+  2. Added formSubmitErrorHandleBeforeAjax parameter to provide custom error handling before making the AJAX call.
+  3. Improved fallback mechanisms for formSubmitErrorHandleBeforeAjax to ensure graceful error handling if not defined by the developer.
+  4. Implemented __handle to centralize submission and error handling logic.
+
+## Changed
+
+### Refactored submitFormUponModalUsingAjax:
+ 1. Simplified error handling by replacing promise-based flow with callback-based flow for easier usage and customization.
+ 2. The onSubmitHandle callback now expects an error argument to handle both synchronous and asynchronous code execution seamlessly.
+ 3. Removed Promise.resolve structure to reduce complexity and increase control over submission handling.
+ 4. Updated formEnable Function:
+    1. Now checks for buttons outside the form by using the form's id attribute, supporting more flexible form structures.
+    2. Improved error message when the submit button is not found.
+
 # v3.1.1
-1. Manually remove Backdrop upon Modal Closing in submitFormUponModalUsingAjax (workaround)
-2. Remove Debuf console log from resetFormFeedback
+
+## Fixed
+  1. Backdrop Cleanup: Addressed an issue where the modal backdrop was not always removed properly after modal closure.
+## Changed:
+ 1. Remove Debug console log from resetFormFeedback
 
 # v3.1.0
 New feature functions to display and remove alerts upon modal.
