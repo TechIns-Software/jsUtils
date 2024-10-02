@@ -1,3 +1,8 @@
+# v3.2.1 - 2024-10-02
+
+## Fixed
+ 1. Upon modal.js do not reset the for If a non-ajax error has occured.
+
 # v3.2.0 - 2024-10-02
 
 ## Added
