@@ -273,8 +273,8 @@ function changedFields(form){
 function formEnable(form,enable,resetFeedback=true){
 
     form = stringToDomHtml(form)
-
-    const submitBtn = form.querySelector(`button[type="submit"]`)?? document.querySelector(`button[form="${form.id}"][type="submit"]`);
+    const formId = form.getAttribute('id');    
+    const submitBtn = form.querySelector(`button[type="submit"]`)?? document.querySelector(`button[form="${formId}"][type="submit"]`) ?? document.querySelector(`button[form="${formId}"]`);
     
     if(!submitBtn){
         throw Error("Unable to enable or disable form")
