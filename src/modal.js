@@ -160,28 +160,31 @@ function submitFormUponModalUsingAjax(modalElem,submitSuccessCallback,ajaxFailur
 
     if (typeof formSubmitErrorHandleBeforeAjax !== 'function') {
         formSubmitErrorHandleBeforeAjax=(error,event, form, modalElem, modal)=>{
+            console.log('formSubmitErrorHandleBeforeAjax')
             formEnable(form,true,true)
         }
     }
 
     // Submit
     const __handle = (error, event, form, modalElem, modal)=>{
+        console.log("Hello");
         if(error){
+            console.error(error)
             formSubmitErrorHandleBeforeAjax(error,event, form, modalElem, modal)
             return
         }
-
-        __formSubmitAjaxCallback(e);
+        console.log("Before __formSubmitAjaxCallback")
+        __formSubmitAjaxCallback(event);
     }
 
 
     form.addEventListener('submit',(e)=>{
         e.preventDefault();
         e.stopPropagation();
-
         if(typeof onSubmitHandle === 'function'){
             try{
                 onSubmitHandle(e, form, modalElem, modal,(error) => {
+                    console.log("Here");
                     __handle(error,e,form, modalElem, modal)
                 });
             } catch(error){
@@ -189,7 +192,8 @@ function submitFormUponModalUsingAjax(modalElem,submitSuccessCallback,ajaxFailur
                 __handle(error,e,form, modalElem, modal)
             }
         } else {
-           __handle(false,form, modalElem, modal)
+            console.log("LIne 195 Event Listener");
+           __handle(false,e,form, modalElem, modal)
         }
     });
 }
