@@ -159,16 +159,14 @@ function submitFormUponModalUsingAjax(modalElem,submitSuccessCallback,ajaxFailur
     }
 
     if (typeof formSubmitErrorHandleBeforeAjax !== 'function') {
-        formSubmitErrorHandleBeforeAjax=(error,event, form, modalElem, modal)=>{
-            formEnable(form,true,true)
-        }
+        formSubmitErrorHandleBeforeAjax=(error,event, form, modalElem, modal)=>{}
     }
 
     // Submit
     const __handle = (error, event, form, modalElem, modal)=>{
         if(error){
             formSubmitErrorHandleBeforeAjax(error,event, form, modalElem, modal)
-            return
+            return false;
         }
         __formSubmitAjaxCallback(event);
     }
@@ -176,18 +174,17 @@ function submitFormUponModalUsingAjax(modalElem,submitSuccessCallback,ajaxFailur
 
     form.addEventListener('submit',(e)=>{
         e.preventDefault();
-        e.stopPropagation();
         if(typeof onSubmitHandle === 'function'){
             try{
                 onSubmitHandle(e, form, modalElem, modal,(error) => {
-                    __handle(error,e,form, modalElem, modal)
+                    return __handle(error,e,form, modalElem, modal)
                 });
             } catch(error){
                 // Upon onSubmitHandle developer may also throw an error I need to handle it as well 
-                __handle(error,e,form, modalElem, modal)
+                return __handle(error,e,form, modalElem, modal)
             }
         } else {
-           __handle(false,e,form, modalElem, modal)
+            return __handle(false,e,form, modalElem, modal)
         }
     });
 }
