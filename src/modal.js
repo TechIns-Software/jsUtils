@@ -163,7 +163,6 @@ function submitFormUponModalUsingAjax(modalElem,submitSuccessCallback,submitFail
         if(error){
             if (typeof submitFailureCallback === 'function') {
                 submitFailureCallback(false, error,false,null,null,[],(error)=>{
-                    formEnable(form,true,true)
                     if(error){
                         console.error(error)
                         return;
