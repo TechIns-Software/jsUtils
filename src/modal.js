@@ -1,4 +1,4 @@
-import { submitFormAjax,stringToDomHtml,formEnable } from "./utils";
+import { submitFormAjax,stringToDomHtml,formEnable,debounce } from "./utils";
 import { Modal } from "bootstrap";
 import { clearInputErrorMessage,errorResponseHandler } from "./input-error";
 
@@ -70,127 +70,277 @@ function removeAlertsFromModal(modalElement){
 
 /**
  * Handles the submission of a form inside a modal using AJAX, with optional customization for success, failure, and submission handling.
- * Cleans up the form and modal upon closing.
- *
- * @param {HTMLElement|string} modalElem - The modal element or a selector string to locate the modal that contains the form.
  * 
- * @param {function(HTMLFormElement, Object|string, Modal):void} submitSuccessCallback - Function executed upon successful form submission.
- * - First argument: the form element inside the modal.
- * - Second argument: the data received from the AJAX request.
- * - Third argument: the Bootstrap modal instance.
+ * @example
  * 
- * @param {function(boolean, boolean, Object, XMLHttpRequest,function(error)):void} ajaxFailureCallback - Function executed when the ajax call upon form fails.
- * - First argument: whether the AJAX call was made.
- * - Second argument: whether the failure was a 400 (Bad Request) error.
- * - Third argument: the response data, which should contain at least a `msg` property with an error message.
- * - Fourth argument: the XMLHttpRequest object.
+ * const callbacks = {
+ *   'submitSuccessCallback': function(form, data, modal) { ... },
+ *   'ajaxFailureCallback': function(is400, responseJson, xhr) { ... },
+ *   'beforeSend': function(xhr, next) { ... },
+ *   'onSubmitHandle': function(event, form, modalElem, modal, next) { ... },
+ *   'formSubmitErrorHandleBeforeAjax': function(error, event, form, modalElem, modal) { ... },
+ *   'onModalClose': function(modalElem, modal, form) { ... }
+ * };
  * 
- * @param {function(XMLHttpRequest, function(error: Error|boolean, event: Event, HTMLElement, HTMLElement, Modal):void):void} [beforeSend] - Optional callback function that runs before the form is submitted via AJAX.
- * - First argument: the XMLHttpRequest object.
- * - Second argument: a callback to handle errors or proceed with form submission.
+ * const modal = new AjaxModal("#myModal",callbacks)
+ * modal.show();
  * 
- * @param {function(Event, HTMLFormElement, HTMLElement, Modal, function(Error|boolean, Event, HTMLFormElement, HTMLElement, Modal):void):void} [onSubmitHandle] - Optional function to handle custom form submission logic.
- * - First argument: the form submission event.
- * - Second argument: the form element.
- * - Third argument: the modal element.
- * - Fourth argument: the Bootstrap modal instance.
- * - Fifth argument: a callback to trigger the actual form submission (with optional error handling).
+ * // In case you want to dismiss it:
+ * modal.hide();
  * 
- * @param {function(HTMLElement, Modal, HTMLFormElement):void} [onModalClose] - Optional function executed when the modal is closed.
- * - First argument: the modal element.
- * - Second argument: the Bootstrap modal instance.
- * - Third argument: the form element inside the modal.
  */
-function submitFormUponModalUsingAjax(modalElem,submitSuccessCallback,ajaxFailureCallback,beforeSend,onSubmitHandle,onModalClose,formSubmitErrorHandleBeforeAjax) {
-    const modalElement = stringToDomHtml(modalElem)
+class AjaxModal {
 
-    const form = modalElement.querySelector('form');
-    const modal= Modal.getOrCreateInstance(modalElement);
+    /**
+     * Initialize an Ajax Model Element
+     * Used to handle the form inside a Modal and pace the Ajax Call triggers Upon Form Submit
+     * @param {HTMLElement|string} modalElem - The modal element or a selector string to locate the modal that contains the form.
+     * @param {Object} callbacks - A set of nessesasry and optional callback functions for handling different stages of the form submission and initialization.
+     *  
+     * - {function(HtmlElement):void} initForm - Initialize the form before showing the modal.
+     * 
+     * - {function(HTMLFormElement, Object|string, AjaxModal):void} submitSuccessCallback - Function executed upon successful form submission.
+     *   - First argument: the form element inside the modal.
+     *   - Second argument: the data received from the AJAX request.
+     *   - Third argument: The AjaxModalInstance.
+     * 
+     * 
+     * - {function(boolean, Object, XMLHttpRequest,function(error)):void} ajaxFailureCallback - Function executed when the ajax call upon form fails.
+     *   - First argument: whether the AJAX call was made.
+     *   - Second argument: whether the failure was a 400 (Bad Request) error.
+     *   - Third argument: the response data, which should contain at least a `msg` property with an error message.
+     *   - Fourth argument: the XMLHttpRequest object.
+     * 
+     * - {function(jqXHR, PlainObject):void):void} [beforeSend] - Optional callback function that runs before the form is submitted via AJAX. 
+     *   It actualy is the beforeSend used internally upon ajax submission.
+     *   
+     * - {function(Event, HTMLFormElement, HTMLElement, AjaxModal, function(bool|Object|Error):void):void} [onSubmitHandle] - Optional function to handle custom form submission logic.
+     *   - First argument: the form submission event.
+     *   - Second argument: the form element.
+     *   - Third argument: the modal element.
+     *   - Fourth argument: the Bootstrap modal instance.
+     *   - Fifth argument: a callback to trigger the actual form submission (with optional error handling).
+     * 
+     * - {function():void} [onModalClose] - Optional function executed when the modal is closed.
+     * 
+     */
+    constructor(modalElement,callbacks) {
+        this.modalElement = stringToDomHtml(modalElement);
+        this.modal = null;
 
-    modalElem.addEventListener('hidden.bs.modal',(e)=>{
-        formEnable(form,true,true)
-        form.reset();
+        this.form = this.modalElement.getElementsByTagName('form')[0];
 
-        // Sometimes Backdrop may not be removed upon modal closure So I chack for it and I manually remove it as a workaround.
-        const backdrop = document.querySelector(".modal-backdrop");
-        if(backdrop){
-            backdrop.remove();
+        if(!this.form){
+            throw new Error('Modal Has not a Form');
         }
-        
-        if(typeof onModalClose === 'function'){
-            onModalClose(modalElem,modal,form);
-        }
-    });
 
-    const __beforeSend = (jqXHR,settings)=>{
-        formEnable(form,false)
-        if(typeof beforeSend === 'function'){
-            beforeSend(jqXHR,settings)
+        this.__init(callbacks);
+    }
+
+   /**
+     * Initializes necessary callback functions.
+     * @param {Object} callbacks - Callback functions for handling modal and form behavior.
+     * @private
+     */
+    __initCallbacks(callbacks){
+        if(!callbacks){
+            throw new Error("Callbacks not provided");
+        }
+
+        if(callbacks.initForm){
+            if(typeof callbacks.initForm !== 'function'){
+                throw new Error('initForm Callback is not a valid function');
+            }
+            this.initForm=callbacks.initForm;
+        } else {
+            this.initForm=()=>{};
+        }
+
+        if(!callbacks.submitSuccessCallback || typeof callbacks.submitSuccessCallback!=='function'){
+            throw new Error('submitSuccessCallback is not a valid function');
+        }
+
+        this.submitSuccessCallback = callbacks.submitSuccessCallback;
+
+        if(!callbacks.ajaxFailureCallback){
+            this.ajaxFailureCallback=(is400,responseJson,xhr,unhandledInputs,next)=>{
+                this.__ajaxError(is400,error)
+            }
+        } else {
+            this.ajaxFailureCallback = callbacks.ajaxFailureCallback;
+        }
+
+        if(typeof this.ajaxFailureCallback !== 'function'){
+            throw new Error('ajaxFailureCallback is not a valid function');
+        }
+
+        if(callbacks.beforeSend && typeof callbacks.beforeSend !== 'function'){
+            throw new Error('beforeSendCallback is not a valid function');
+        }else if(callbacks.beforeSend) {
+            this.beforeSend=callbacks.beforeSend;
+        } else {
+            this.beforeSend=()=>{}
+        }
+
+        if(callbacks.formSubmitErrorHandleBeforeAjax && typeof callbacks.formSubmitErrorHandleBeforeAjax !== 'function'){
+            throw new Error('formSubmitErrorHandleBeforeAjax is not a valid function');
+        }else if(callbacks.formSubmitErrorHandleBeforeAjax ){
+            this.formSubmitErrorHandleBeforeAjax=callbacks.formSubmitErrorHandleBeforeAjax;
+        } else {
+            this.formSubmitErrorHandleBeforeAjax=(error,event, form, modalElem, modal)=>{}
+        }
+
+        if(callbacks.onModalClose && typeof callbacks.onModalClose !== 'function'){
+            throw new Error('onModalClose is not a valid function');
+        }else if(callbacks.onModalClose){
+            this.onModalClose=callbacks.onModalClose;
+        } else {
+            this.onModalClose=()=>{}
         }
     }
-    
-    const __ajaxError = (is400,error)=>{
-        formEnable(form,true,true)
+
+    /**
+     * Initializes the form and sets up event listeners.
+     * @param {Object} callbacks - Callback functions for form and modal behavior.
+     * @private
+     */    
+    __init(callbacks){
+        this.__initCallbacks(callbacks);
+        this.__initFormListeners();
+    }
+
+
+    /**
+     * Adds event listeners to handle form submission.
+     * @private
+     */
+    __initFormListeners() {
+        this.form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (typeof this.onSubmitHandle === 'function') {
+                try {
+                    this.onSubmitHandle(e, this.form, this.modalElem, this, (error) => this.__handle(error, e));
+                } catch (error) {
+                    // Upon onSubmitHandle developer may also throw an error I need to handle it as well
+                    return this.__handle(error, e)
+                }
+            } else {
+                return this.__handle(false, e)
+            }
+        })
+    }
+
+    /**
+     * Handles form submission and errors.
+     * @param {Error|boolean} error - Error object or false if no error.
+     * @param {Event} event - The form submission event.
+     * @private
+     */
+    __handle(error, event){
         if(error){
+            this.formSubmitErrorHandleBeforeAjax(error,event, this.form, this.modalElem, this)
+            return false;
+        }
+
+        this.__formSubmitAjaxCallback(event);
+    }
+
+
+  
+    /**
+     * Handles the AJAX form submission.
+     * @param {Event} e - The form submission event.
+     * @private
+     */
+    __formSubmitAjaxCallback(e){
+        submitFormAjax(this.form,(data)=>{
+                formEnable(this.form,true,true)
+                this.submitSuccessCallback(this.form,data,this)
+        },
+        (jqxhr)=>{
+                errorResponseHandler(jqxhr,(is400,responseJson,xhr,unhandledInputs)=>{
+                    if(typeof this.ajaxFailureCallback === 'function'){
+                        console.log(this.ajaxFailureCallback)
+                        this.ajaxFailureCallback(is400,responseJson,xhr,unhandledInputs,(error)=>{
+                            this.__ajaxError(is400,error)
+                        });
+                    }
+                },this.form)
+
+        }, this.__beforeSend.bind(this))
+    }
+
+    /**
+     * Handles AJAX errors.
+     * @param {boolean} is400 - Whether the error is a 400 status code.
+     * @param {Error|boolean} error - The error object or false.
+     * @private
+     */
+    __ajaxError(is400,error){
+        if(error){
+            formEnable(this.form,true,true)
             console.error(error)
             return;
         }
-        
+
         if(!is400) {
-            modal.hide();
+            console.log("Before Hide");
+            this.close();
         }
     }
 
-    // Ajax Handler
-    const __formSubmitAjaxCallback = (e)=>{
-        submitFormAjax(form,(data)=>{
-            formEnable(form,true,true)
-            submitSuccessCallback(form,data,modal)
-        },
-        (jqxhr)=>{
-            errorResponseHandler(jqxhr,(is400,responseJson,xhr,unhandledInputs)=>{
-                if(typeof submitFailureCallback === 'function'){
-                    ajaxFailureCallback(true,null,is400,responseJson,xhr,unhandledInputs,(error)=>{
-                        __ajaxError(is400,error)
-                    });
-                }
-            },form)
-        },__beforeSend)
+    /**
+     * Function that triggers the beforeSendCallbackUponAjax.
+     * it disables the Form
+     * @param jqXHR
+     * @param settings
+     * @private
+     */
+    __beforeSend(jqXHR,settings){
+        formEnable(this.form,false)
+        this.beforeSend(jqXHR,settings)
     }
 
-    if (typeof formSubmitErrorHandleBeforeAjax !== 'function') {
-        formSubmitErrorHandleBeforeAjax=(error,event, form, modalElem, modal)=>{}
+    /**
+     * Resets the form.
+     * @private
+     */
+    __resetForm(){
+        formEnable(this.form,true);
+        this.form.reset();
     }
 
-    // Submit
-    const __handle = (error, event, form, modalElem, modal)=>{
-        if(error){
-            formSubmitErrorHandleBeforeAjax(error,event, form, modalElem, modal)
-            return false;
-        }
-        __formSubmitAjaxCallback(event);
+    /**
+     * Displays The Modal
+     */
+    show(){
+        this.__resetForm();
+        this.initForm(this.modalElement);
+
+        this.modal = Modal.getOrCreateInstance(this.modalElement);
+        this.modal.show();
     }
 
+    /**
+     * Closes The Modal
+     */
+    close() {
+        this.onModalClose();
+        this.modal.hide();
+    }
 
-    form.addEventListener('submit',(e)=>{
-        e.preventDefault();
-        if(typeof onSubmitHandle === 'function'){
-            try{
-                onSubmitHandle(e, form, modalElem, modal,(error) => {
-                    return __handle(error,e,form, modalElem, modal)
-                });
-            } catch(error){
-                // Upon onSubmitHandle developer may also throw an error I need to handle it as well 
-                return __handle(error,e,form, modalElem, modal)
-            }
-        } else {
-            return __handle(false,e,form, modalElem, modal)
-        }
-    });
+    /**
+     * Alias of close();
+     * Used for compartibility with Bootstrap's modal
+     */
+    hide(){
+        this.close();
+    }
 }
 
+
 export {
-    submitFormUponModalUsingAjax,
+    AjaxModal,
     addAlertUpoModal,
     removeAlertsFromModal
 }
