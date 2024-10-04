@@ -97,19 +97,20 @@ class AjaxModal {
      * @param {HTMLElement|string} modalElem - The modal element or a selector string to locate the modal that contains the form.
      * @param {Object} callbacks - A set of nessesasry and optional callback functions for handling different stages of the form submission and initialization.
      *  
-     * - {function(HtmlElement):void} initForm - Initialize the form before showing the modal.
-     * 
+     * - {function(HTMLElement):void} initForm - Initialize the form before showing the modal.
+     *  
      * - {function(HTMLFormElement, Object|string, AjaxModal):void} submitSuccessCallback - Function executed upon successful form submission.
      *   - First argument: the form element inside the modal.
      *   - Second argument: the data received from the AJAX request.
      *   - Third argument: The AjaxModalInstance.
      * 
      * 
-     * - {function(boolean, Object, XMLHttpRequest,function(error)):void} ajaxFailureCallback - Function executed when the ajax call upon form fails.
-     *   - First argument: whether the AJAX call was made.
-     *   - Second argument: whether the failure was a 400 (Bad Request) error.
-     *   - Third argument: the response data, which should contain at least a `msg` property with an error message.
-     *   - Fourth argument: the XMLHttpRequest object.
+     * - {function(boolean, Object, XMLHttpRequest, array|null, function(error)):void} ajaxFailureCallback - Function executed when the AJAX call upon form fails.
+     *   - First argument: whether the failure was a 400 (Bad Request) error.
+     *   - Second argument: the response data.
+     *   - Third argument: the XMLHttpRequest object.
+     *   - Fourth argument: unhandled inputs from the form, if any.
+     *   - Fifth argument: a callback to handle further error handling.
      * 
      * - {function(jqXHR, PlainObject):void):void} [beforeSend] - Optional callback function that runs before the form is submitted via AJAX. 
      *   It actualy is the beforeSend used internally upon ajax submission.
