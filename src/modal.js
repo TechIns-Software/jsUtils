@@ -1,6 +1,6 @@
-import { submitFormAjax,stringToDomHtml,formEnable,debounce } from "./utils";
+import { submitFormAjax,stringToDomHtml,formEnable } from "./utils";
 import { Modal } from "bootstrap";
-import { clearInputErrorMessage,errorResponseHandler } from "./input-error";
+import { errorResponseHandler } from "./input-error";
 
 /**
  * Display a Bootstrap 5 alert inside a modal.
@@ -69,61 +69,105 @@ function removeAlertsFromModal(modalElement){
 }
 
 /**
- * Handles the submission of a form inside a modal using AJAX, with optional customization for success, failure, and submission handling.
- * 
+ * @class
+ * @classdesc AjaxModal is a class designed to handle modal form submission using AJAX, with customizable callbacks for different stages of the form lifecycle.
+ * This class provides several optional and required callbacks to handle various parts of the form lifecycle, including initialization, submission success, and failure handling.
+ *
  * @example
- * 
+ * // Basic Usage Example
  * const callbacks = {
- *   'submitSuccessCallback': function(form, data, modal) { ... },
- *   'ajaxFailureCallback': function(is400, responseJson, xhr) { ... },
- *   'beforeSend': function(xhr, next) { ... },
- *   'onSubmitHandle': function(event, form, modalElem, modal, next) { ... },
- *   'formSubmitErrorHandleBeforeAjax': function(error, event, form, modalElem, modal) { ... },
- *   'onModalClose': function(modalElem, modal, form) { ... }
+ *   'submitSuccessCallback': function(form, data, modal) { ... },   // Callback when form submission is successful
+ *   'ajaxFailureCallback': function(is400, responseJson, xhr) { ... }, // Callback when AJAX submission fails
+ *   'beforeSend': function(xhr, next) { ... },   // Callback before the AJAX request is sent
+ *   'onSubmitHandle': function(event, form, modalElem, modal, next) { ... },   // Custom form submission logic
+ *   'formSubmitErrorHandleBeforeAjax': function(error, event, form, modalElem, modal) { ... }, // Handles form validation errors before AJAX
+ *   'onModalClose': function(modalElem, modal, form) { ... }   // Callback when the modal is closed
  * };
- * 
- * const modal = new AjaxModal("#myModal",callbacks)
- * modal.show();
- * 
- * // In case you want to dismiss it:
- * modal.hide();
- * 
+ *
+ * const modal = new AjaxModal("#myModal", callbacks);  // Initialize the modal with callbacks
+ * modal.show();  // Show the modal
+ *
+ * @example
+ * // Using a button
+ * // Initialize a modal when a button or DOM element is clicked
+ * <button role="button" onclick="showModal(this)">Open Modal</button>
+ *
+ * let modalHandler = null;
+ *
+ * // Object with callbacks as mentioned in the constructor method
+ * const callbacks = {
+ *     'initForm': (modalElement, buttonElement) => {
+ *         // Initialization of the form when the modal is shown
+ *     },
+ *     'submitSuccessCallback': function(form, data, modal) { ... },
+ *     'ajaxFailureCallback': function(is400, responseJson, xhr) { ... }
+ * };
+ *
+ * function showModal(button){
+ *     if(!modalHandler){
+ *         modalHandler = new AjaxModal("#myModal", callbacks);
+ *     }
+ *     modalHandler.show(button);  // Show the modal and pass the clicked button
+ * }
+ *
+ * @param {String|HTMLElement} modalElement - The selector or DOM element for the modal.
+ * @param {Object} [callbacks] - Object containing callback functions for handling modal behavior. Optional.
+ *
+ * @callback [initForm] Optional callback to initialize the form before showing the modal.
+ *   - First argument: {HTMLElement} modalElement - The modal element.
+ *   - Second argument: {HTMLElement} [buttonElement] - The button or DOM element that triggered the modal. May be `undefined` if no button triggered it.
+ *
+ * @callback submitSuccessCallback Function executed upon successful form submission.
+ *   - First argument: {HTMLFormElement} form - The form element inside the modal.
+ *   - Second argument: {Object|string} data - The data received from the AJAX request.
+ *   - Third argument: {AjaxModal} modal - The `AjaxModal` instance.
+ *
+ * @callback ajaxFailureCallback Function executed when the AJAX call fails.
+ *   - First argument: {boolean} is400 - Whether the failure was a 400 error (Bad Request).
+ *   - Second argument: {Object} responseJson - The response data, which should contain at least a `msg` property.
+ *   - Third argument: {XMLHttpRequest} xhr - The XMLHttpRequest object.
+ *   - Fourth argument: {Object} [unhandledInputs] - Any unhandled input errors.
+ *   - Fifth argument: {function(Error|boolean):void} next - A callback to signal the end of failure handling.
+ *
+ * @callback [beforeSend] Optional callback function executed before the AJAX request is sent.
+ *   - First argument: {XMLHttpRequest} jqXHR - The XHR object before the request is sent.
+ *   - Second argument: {Object} [settings] - AJAX request settings.
+ *
+ * @callback [onSubmitHandle] Optional function to handle custom form submission logic.
+ *   - First argument: {Event} event - The form submission event.
+ *   - Second argument: {HTMLFormElement} form - The form element being submitted.
+ *   - Third argument: {HTMLElement} modalElement - The modal element.
+ *   - Fourth argument: {AjaxModal} modal - The `AjaxModal` instance.
+ *   - Fifth argument: {function(bool|Object|Error):void} next - A callback to trigger the actual form submission.
+ *
+ * @callback [formSubmitErrorHandleBeforeAjax] Optional callback executed before AJAX submission in case of form validation errors.
+ *   - First argument: {Error|boolean} error - Validation error or false if no error.
+ *   - Second argument: {Event} event - The form submission event.
+ *   - Third argument: {HTMLFormElement} form - The form element.
+ *   - Fourth argument: {HTMLElement} modalElement - The modal element.
+ *   - Fifth argument: {AjaxModal} modal - The `AjaxModal` instance.
+ *
+ * @callback [onModalClose] Optional callback executed when the modal is closed.
+ *   - First argument: {HTMLElement} modalElement - The modal element.
+ *   - Second argument: {AjaxModal} modal - The `AjaxModal` instance.
+ *   - Third argument: {HTMLFormElement} [form] - The form element inside the modal. Optional.
+ *
+ * @method show
+ * @description Displays the modal. Can optionally take a trigger element (e.g., a button) that was clicked to open the modal.
+ * @param {HTMLElement} [triggeredElement] - The element that triggered the modal display (e.g., a button). Optional.
+ *
+ * @method hide
+ * @description Hides the modal and triggers the `onModalClose` callback if provided.
+ *
+ * @method close
+ * @description Alias of hide() for compatibility with Bootstrap's modal behavior.
  */
+
 class AjaxModal {
 
     /**
-     * Initialize an Ajax Model Element
-     * Used to handle the form inside a Modal and pace the Ajax Call triggers Upon Form Submit
-     * @param {HTMLElement|string} modalElem - The modal element or a selector string to locate the modal that contains the form.
-     * @param {Object} callbacks - A set of nessesasry and optional callback functions for handling different stages of the form submission and initialization.
-     *  
-     * - {function(HTMLElement):void} initForm - Initialize the form before showing the modal.
-     *  
-     * - {function(HTMLFormElement, Object|string, AjaxModal):void} submitSuccessCallback - Function executed upon successful form submission.
-     *   - First argument: the form element inside the modal.
-     *   - Second argument: the data received from the AJAX request.
-     *   - Third argument: The AjaxModalInstance.
-     * 
-     * 
-     * - {function(boolean, Object, XMLHttpRequest, array|null, function(error)):void} ajaxFailureCallback - Function executed when the AJAX call upon form fails.
-     *   - First argument: whether the failure was a 400 (Bad Request) error.
-     *   - Second argument: the response data.
-     *   - Third argument: the XMLHttpRequest object.
-     *   - Fourth argument: unhandled inputs from the form, if any.
-     *   - Fifth argument: a callback to handle further error handling.
-     * 
-     * - {function(jqXHR, PlainObject):void):void} [beforeSend] - Optional callback function that runs before the form is submitted via AJAX. 
-     *   It actualy is the beforeSend used internally upon ajax submission.
-     *   
-     * - {function(Event, HTMLFormElement, HTMLElement, AjaxModal, function(bool|Object|Error):void):void} [onSubmitHandle] - Optional function to handle custom form submission logic.
-     *   - First argument: the form submission event.
-     *   - Second argument: the form element.
-     *   - Third argument: the modal element.
-     *   - Fourth argument: the Bootstrap modal instance.
-     *   - Fifth argument: a callback to trigger the actual form submission (with optional error handling).
-     * 
-     * - {function():void} [onModalClose] - Optional function executed when the modal is closed.
-     * 
+     * @param {Object} callbacks - Callback functions for handling modal and form behavior. For More Info look above.
+     * @param {String|HTMLElement} modalElement
      */
     constructor(modalElement,callbacks) {
         this.modalElement = stringToDomHtml(modalElement);
@@ -138,9 +182,9 @@ class AjaxModal {
         this.__init(callbacks);
     }
 
-   /**
+    /**
      * Initializes necessary callback functions.
-     * @param {Object} callbacks - Callback functions for handling modal and form behavior.
+     * @param {Object} callbacks - Callback functions for handling modal and form behavior. For More Info look above.
      * @private
      */
     __initCallbacks(callbacks){
@@ -204,7 +248,7 @@ class AjaxModal {
      * Initializes the form and sets up event listeners.
      * @param {Object} callbacks - Callback functions for form and modal behavior.
      * @private
-     */    
+     */
     __init(callbacks){
         this.__initCallbacks(callbacks);
         this.__initFormListeners();
@@ -247,7 +291,7 @@ class AjaxModal {
     }
 
 
-  
+
     /**
      * Handles the AJAX form submission.
      * @param {Event} e - The form submission event.
@@ -257,8 +301,8 @@ class AjaxModal {
         submitFormAjax(this.form,(data)=>{
                 formEnable(this.form,true,true)
                 this.submitSuccessCallback(this.form,data,this)
-        },
-        (jqxhr)=>{
+            },
+            (jqxhr)=>{
                 errorResponseHandler(jqxhr,(is400,responseJson,xhr,unhandledInputs)=>{
                     if(typeof this.ajaxFailureCallback === 'function'){
                         console.log(this.ajaxFailureCallback)
@@ -268,7 +312,7 @@ class AjaxModal {
                     }
                 },this.form)
 
-        }, this.__beforeSend.bind(this))
+            }, this.__beforeSend.bind(this))
     }
 
     /**
@@ -313,10 +357,13 @@ class AjaxModal {
 
     /**
      * Displays The Modal
+     * @param {String|HTMLElement} triggeredElement Html Element that triggers the modal Initialization (forexample upon an event).
+     * It is used upon initForm callback.
      */
-    show(){
+    show(triggeredElement){
         this.__resetForm();
-        this.initForm(this.modalElement);
+
+        this.initForm(this.modalElement,stringToDomHtml(triggeredElement));
 
         this.modal = Modal.getOrCreateInstance(this.modalElement);
         this.modal.show();
