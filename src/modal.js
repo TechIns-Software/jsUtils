@@ -114,43 +114,43 @@ function removeAlertsFromModal(modalElement){
  * @param {Object} [callbacks] - Object containing callback functions for handling modal behavior. Optional.
  *
  * @callback [initForm] Optional callback to initialize the form before showing the modal.
- *   - First argument: {HTMLElement} modalElement - The modal element.
- *   - Second argument: {HTMLElement} [buttonElement] - The button or DOM element that triggered the modal. May be `undefined` if no button triggered it.
+ * @param {HTMLElement} modalElement - The modal element.
+ * @param {HTMLElement} [buttonElement] - The button or DOM element that triggered the modal. This may be `undefined` if no button triggered it.
  *
  * @callback submitSuccessCallback Function executed upon successful form submission.
- *   - First argument: {HTMLFormElement} form - The form element inside the modal.
- *   - Second argument: {Object|string} data - The data received from the AJAX request.
- *   - Third argument: {AjaxModal} modal - The `AjaxModal` instance.
+ * @param {HTMLFormElement} form - The form element within the modal.
+ * @param {Object|string} data - The data received from the successful AJAX request.
+ * @param {AjaxModal} modal - The instance of the AjaxModal class.
  *
  * @callback ajaxFailureCallback Function executed when the AJAX call fails.
- *   - First argument: {boolean} is400 - Whether the failure was a 400 error (Bad Request).
- *   - Second argument: {Object} responseJson - The response data, which should contain at least a `msg` property.
- *   - Third argument: {XMLHttpRequest} xhr - The XMLHttpRequest object.
- *   - Fourth argument: {Object} [unhandledInputs] - Any unhandled input errors.
- *   - Fifth argument: {function(Error|boolean):void} next - A callback to signal the end of failure handling.
+ * @param {boolean} is400 - Whether the failure was a 400 error (Bad Request).
+ * @param {Object} [responseJson] - The JSON object received from the response. Optional.
+ * @param {XMLHttpRequest} xhr - The XMLHttpRequest object.
+ * @param {Object} [unhandledInputs] - Object containing unhandled input errors. Optional.
+ * @param {function(Error|boolean)} next - Callback to signal the end of failure handling.
  *
  * @callback [beforeSend] Optional callback function executed before the AJAX request is sent.
- *   - First argument: {XMLHttpRequest} jqXHR - The XHR object before the request is sent.
- *   - Second argument: {Object} [settings] - AJAX request settings.
+ * @param {XMLHttpRequest} jqXHR - The XHR object before the request is sent.
+ * @param {Object} [settings] - AJAX request settings. Optional.
  *
  * @callback [onSubmitHandle] Optional function to handle custom form submission logic.
- *   - First argument: {Event} event - The form submission event.
- *   - Second argument: {HTMLFormElement} form - The form element being submitted.
- *   - Third argument: {HTMLElement} modalElement - The modal element.
- *   - Fourth argument: {AjaxModal} modal - The `AjaxModal` instance.
- *   - Fifth argument: {function(bool|Object|Error):void} next - A callback to trigger the actual form submission.
+ * @param {Event} event - The form submission event.
+ * @param {HTMLFormElement} form - The form element being submitted.
+ * @param {HTMLElement} modalElement - The modal element.
+ * @param {AjaxModal} modal - The AjaxModal instance.
+ * @param {function(boolean|Object|Error)} next - A callback to trigger the form submission.
  *
  * @callback [formSubmitErrorHandleBeforeAjax] Optional callback executed before AJAX submission in case of form validation errors.
- *   - First argument: {Error|boolean} error - Validation error or false if no error.
- *   - Second argument: {Event} event - The form submission event.
- *   - Third argument: {HTMLFormElement} form - The form element.
- *   - Fourth argument: {HTMLElement} modalElement - The modal element.
- *   - Fifth argument: {AjaxModal} modal - The `AjaxModal` instance.
+ * @param {Error|boolean} error - Validation error or false if no error.
+ * @param {Event} event - The form submission event.
+ * @param {HTMLFormElement} form - The form element.
+ * @param {HTMLElement} modalElement - The modal element.
+ * @param {AjaxModal} modal - The instance of the AjaxModal class.
  *
  * @callback [onModalClose] Optional callback executed when the modal is closed.
- *   - First argument: {HTMLElement} modalElement - The modal element.
- *   - Second argument: {AjaxModal} modal - The `AjaxModal` instance.
- *   - Third argument: {HTMLFormElement} [form] - The form element inside the modal. Optional.
+ * @param {HTMLElement} modalElement - The modal element.
+ * @param {AjaxModal} modal - The instance of the AjaxModal class.
+ * @param {HTMLFormElement} [form] - The form element inside the modal. Optional.
  *
  * @method show
  * @description Displays the modal. Can optionally take a trigger element (e.g., a button) that was clicked to open the modal.
