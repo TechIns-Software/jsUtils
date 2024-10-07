@@ -1,3 +1,7 @@
+# v4.0.1 - 2024-10-07
+Improved Documentation
+
+
 # v4.0.0 - 2024-10-04
 ## Changed
  - At `modal.js` I removed the `formModalHandlingFunction` and placed `AjaxModal` instead 
