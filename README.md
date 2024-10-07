@@ -79,9 +79,12 @@ Also feel free to style the form using a css framework such as bootstrap (or eve
 
 ## @techins/jsutils/modal
 
-This file contains a single function named `submitFormUponModalUsingAjax` that one bootstraps the submission of a form that resides indide a modal for example:
+This file contains a single function named `submitFormUponModalUsingAjax` that one bootstraps the submission of a form that resides inside a modal for example:
 
 ```
+
+<button role="button" onclick="showmodal(this)">Show Modal</button>
+
 <div class="modal fade" id="someId" tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -110,19 +113,34 @@ This file contains a single function named `submitFormUponModalUsingAjax` that o
 ```
 import {submitFormUponModalUsingAjax} from "@techins/jsutils/modal"
 
-submitFormUponModalUsingAjax(subscriptionEditFormModal,(form,data,modal)=>{
-   // Upon Success DO stuff
-},(ajaxCalled,is400,responseJson,xhr)=>{
-    if(ajaxCalled && is400){
-       // The form has been submitted upon server and error 400 is retuend
+
+const callbacks = {
+  'submitSuccessCallback':(form,data,modal)=>{
+      // Upon Success DO stuff
+   },
+   'ajaxFailureCallback':(ajaxCalled,is400,responseJson,xhr)=>{
+        if(ajaxCalled && is400){
+        // The form has been submitted upon server and error 400 is retuend
+        }
+
+        if(ajaxCalled){
+        // The form has been submitted upon server and error is returned but not witth 400 Http Status
+        }
+
+        // responseJson is the ajax Response
+    }
+}
+
+let modal=null
+
+function showmodal(button){
+    if(!modal){
+        modal = new AjaxModal("#someId", callbacks);
     }
 
-    if(ajaxCalled){
-      // The form has been submitted upon server and error is returned but not witth 400 Http Status
-    }
+    modal.show(button)
+}
 
-    // responseJson is the ajax Response
-})
 ```
 
-There are some extra arguments that receive callback look upon src/modal.js for full documentation.
+Regarding the callbacks and full arghuments look upon src/modal.js in this project.

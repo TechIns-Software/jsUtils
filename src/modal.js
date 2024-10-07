@@ -111,7 +111,7 @@ function removeAlertsFromModal(modalElement){
  * }
  *
  * @param {String|HTMLElement} modalElement - The selector or DOM element for the modal.
- * @param {Object} [callbacks] - Object containing callback functions for handling modal behavior. Optional.
+ * @param {Object} callbacks - Object containing callback functions for handling modal behavior. Optional.
  *
  * @callback [initForm] Optional callback to initialize the form before showing the modal.
  * @param {HTMLElement} modalElement - The modal element.
