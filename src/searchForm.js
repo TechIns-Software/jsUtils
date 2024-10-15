@@ -2,38 +2,6 @@ import {stringToDomHtml, submitFormAjax,debounce} from "./utils";
 import ScrollTable from "./scrollTable";
 
 /**
- * A SearchForm class that handles form submissions via AJAX and appends the fetched
- * HTML data into a table. This class extends the GenericSearchForm and provides 
- * specific functionality to append data into a table's `<tbody>`.
- * 
- * For usage details, see the README.md where `@techins/jsutils/searchForm` is referenced.
- * 
- * @extends {GenericSearchForm}
- */
-class SearchForm extends GenericSearchForm
-{
-    /**
-     * Initialize a SearchForm.
-     * @param {string | HTMLElement} form_element - HTML string representing the form element.
-     * @param {string | HTMLElement} table_element - HTML string representing the table element.
-     * @param {function} submitErrorCallback - Callback function to handle submission errors.
-     */
-    constructor(form_element,table_element,submitErrorCallback) {
-        super(form,this.appendDataElementToTable,submitErrorCallback,false)
-        this.form = stringToDomHtml(form_element)
-    }
-
-    /**
-     * Append the retrieved data to the table's tbody element.
-     * @param {string} data - The HTML string to be inserted into the tbody.
-     */
-    appendDataElementToTable(data) {
-        const tbody = this.table.querySelector('tbody')
-        tbody.innerHTML=data
-    }
-}
-
-/**
  * A generic base class for managing search form utilities. Provides functionality
  * for form submission via AJAX, handling success, error callbacks, and optional 
  * form reset behavior.
@@ -105,6 +73,38 @@ class GenericSearchForm
      */
     __handleSearch(inputSearchField){
         this.prevAjax=submitFormAjax(this.form,this.successCallback,this.submitErrorCallback,null,this.prevAjax)
+    }
+}
+
+/**
+ * A SearchForm class that handles form submissions via AJAX and appends the fetched
+ * HTML data into a table. This class extends the GenericSearchForm and provides 
+ * specific functionality to append data into a table's `<tbody>`.
+ * 
+ * For usage details, see the README.md where `@techins/jsutils/searchForm` is referenced.
+ * 
+ * @extends {GenericSearchForm}
+ */
+class SearchForm extends GenericSearchForm
+{
+    /**
+     * Initialize a SearchForm.
+     * @param {string | HTMLElement} form_element - HTML string representing the form element.
+     * @param {string | HTMLElement} table_element - HTML string representing the table element.
+     * @param {function} submitErrorCallback - Callback function to handle submission errors.
+     */
+    constructor(form_element,table_element,submitErrorCallback) {
+        super(form,this.appendDataElementToTable,submitErrorCallback,false)
+        this.form = stringToDomHtml(form_element)
+    }
+
+    /**
+     * Append the retrieved data to the table's tbody element.
+     * @param {string} data - The HTML string to be inserted into the tbody.
+     */
+    appendDataElementToTable(data) {
+        const tbody = this.table.querySelector('tbody')
+        tbody.innerHTML=data
     }
 }
 
