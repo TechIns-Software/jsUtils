@@ -8,6 +8,7 @@
     "./clipboard": "./src/clipboard.js",
     "./input-error": "./src/input-error.js",
     "./modal": "./src/modal.js",
+    "./scrollTable": "./src/scrollTable.js",
     "./searchForm": "./src/searchForm.js",
     "./url": "./src/url.js",
     "./utils": "./src/utils.js",
