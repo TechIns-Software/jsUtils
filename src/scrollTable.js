@@ -1,47 +1,47 @@
 import $ from "jquery";
 import {stringToDomHtml} from "./utils";
 
-
 /**
- * An infinite scrolling table it provided infinite scrolling upon a table using the following this html markup
+ * Class representing an infinite scrolling table.
+ * This class enables infinite scrolling on a table by appending more data as the user scrolls down. 
+ * The HTML structure expected for this to work is as follows:
  * 
  * ```
  * <div id="scroll" data-url="/someUrl?page=1&limit=10">
- * 
  *   <table>
- *    <thead>
- *       <!-- headers according to your needs -->
- *    </thead>
- *    <tbody>
- *       <!-- Data Diplayed here -->
- *    </tbody>
+ *     <thead>
+ *       <!-- Table headers -->
+ *     </thead>
+ *     <tbody>
+ *       <!-- Data rows -->
+ *     </tbody>
  *   </table>
- * 
  * </div>
  * ```
  * 
- * As youy can see a Div is used for Scrollwrapper and upon `data-url` it contains the url to fetch the next page.
- * Upon the url in  data-url` you should alsom place any get parametes (url query) used for the data that will be displayed upon table's tbody
+ * - The `data-url` attribute of the `div` contains the API URL used to fetch the next page.
+ * - The URL should include query parameters (e.g., pagination or filtering).
+ * - The server should respond with `application/html`, and the response body will be appended to the `tbody` of the table.
+ * - The server must also include the following headers:
+ *   - `X-NextUrl`: URL for the next page of data.
+ *   - `X-HasMore`: A boolean header (`true`/`false`) indicating whether there is more data to load.
+ *
+ * @example
  * 
- * The data returned upon an Ajax call should be returned as `application/html`
- * containing the content that will be placed or replaced within the tbody:
- * 
+ * If the html mentioned above is used then you can Initialize the class as:
  * ```
- * <tr>
- *  <td>val1</td>
- *  <td>val2</td>
- *  <td>val3</td>
- * </tr>
+ *  const scrollTable = new ScrollTable("scroll")
  * ```
- * 
- * Also the server must include the following headers:
- * - For the next page URL in the `X-NextUrl` header.
- * - As an indication whether ajax has more data the `X-HasMore` with either true or false must be provided. True indicated that the current page retrieved is not the last one.
  * 
  */
 class ScrollTable {
 
 
+    /**
+     * Initializes the ScrollTable instance.
+     * @param {string|HTMLElement} scrollWrapper - The div element that contains the scroll wrapper, or its selector.
+     * @param {Function} [scrollAjaxErrorCallback] - Callback function triggered if an AJAX error occurs.
+     */
     constructor(scrollWrapper,scrollAjaxErrorCallback) {
 
         this.__scrollWrapper = stringToDomHtml(scrollWrapper)
@@ -69,12 +69,20 @@ class ScrollTable {
         this.__observe()
     }
 
+    /**
+     * Aborts the current AJAX request if one is active.
+     * @public
+     */
     abortRefresh(){
         if(this.currentAjax){
             this.currentAjax.abort();
         }
     }
 
+    /**
+     * Observes the last row of the table (`tr:last-child`) and triggers data loading when it comes into view.
+     * @private
+     */
     __observe() {
         const trigger = this.__dataContainer.querySelector(this.__triggerElement);
         if(trigger){
@@ -82,6 +90,12 @@ class ScrollTable {
         }
     }
 
+
+    /**
+     * Performs an AJAX call to fetch data from the URL specified in the `data-url` attribute.
+     * On success, appends the fetched data to the table's `tbody` and updates the `data-url` for the next page.
+     * @private
+     */
     __ajaxUpdateData(){
         console.log("Here")
         const url =this.__scrollWrapper.getAttribute("data-url")
@@ -96,15 +110,21 @@ class ScrollTable {
             success: function(data, textStatus, jqXHR){
                 const url = jqXHR.getResponseHeader('X-NextUrl');
                 const hasMore = jqXHR.getResponseHeader('X-HasMore');
-                this.populateData(data,url,hasMore)
+                this.__populateData(data,url,hasMore)
             }.bind(this),
             error:this.scrollAjaxErrorCallback
         });
     }
 
 
-    populateData(data,url,hasMore){
-
+    /**
+     * Populates the table with new data and sets up the next page URL if available.
+     * @param {string} data - The HTML content for the new rows to be appended.
+     * @param {string} url - The URL for the next page.
+     * @param {boolean} hasMore - Whether there is more data to load.
+     * @private
+     */
+    __populateData(data,url,hasMore){
         if(hasMore){
             if(!url){
                 throw new Error("Url has not Been provided")
@@ -118,6 +138,12 @@ class ScrollTable {
         this.__observe();
     }
 
+    /**
+     * Overwrites the current table data with new content from an external source.
+     * @param {string} data - The HTML content to replace the current table rows.
+     * @param {string} [url] - The URL for the next page, if any.
+     * @public
+     */
     overWriteData(data,url){
 
         if(!url){
@@ -130,8 +156,11 @@ class ScrollTable {
         this.__observe();
     }
 
+    /**
+     * Resets the table to its initial state by fetching the original data from the URL set at the first itme in the scroll wrapper.
+     * @public
+     */
     resetOriginalData(){
-        console.log("RESET")
         this.__scrollWrapper.setAttribute('data-url',this.__initialUrl)
         this.__dataContainer.innerHTML = ""
         this.__ajaxUpdateData();
