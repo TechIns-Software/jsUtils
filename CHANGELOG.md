@@ -1,3 +1,14 @@
+# v5.0.0 - 2024-10-15
+
+## Added
+1. New Class for making an Infinite Scrolling table
+2. A GenericSearchFormClass that all searchform Utilities are based upon
+3. A new ScrollTableSearchForm that utilized Both classes mentioned Above
+
+## Changed
+1. SearchForm uses GenericSearchForm whilst maintaining old fuynctionality
+
+
 # v4.0.1 - 2024-10-07
 Improved Documentation
 
