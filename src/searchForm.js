@@ -142,5 +142,6 @@ class ScrollTableSearchForm extends GenericSearchForm
 
 export default SearchForm
 export {
-    GenericSearchForm
+    GenericSearchForm,
+    ScrollTableSearchForm
 }
