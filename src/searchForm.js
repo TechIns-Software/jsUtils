@@ -1,10 +1,14 @@
-import $ from "jquery";
 import {stringToDomHtml, submitFormAjax,debounce} from "./utils";
+import ScrollTable from "./scrollTable";
 
 /**
- * Class representing a search form that can be dynamically updated and handles AJAX submissions.
+ * A SearchForm class that handles form submissions via AJAX and appends the fetched
+ * HTML data into a table. This class extends the GenericSearchForm and provides 
+ * specific functionality to append data into a table's `<tbody>`.
  * 
- * For usage read README.md where `@techins/jsutils/searchForm` is mentioned
+ * For usage details, see the README.md where `@techins/jsutils/searchForm` is referenced.
+ * 
+ * @extends {GenericSearchForm}
  */
 class SearchForm extends GenericSearchForm
 {
@@ -30,7 +34,9 @@ class SearchForm extends GenericSearchForm
 }
 
 /**
- * A generic class to Base The search form Utilities
+ * A generic base class for managing search form utilities. Provides functionality
+ * for form submission via AJAX, handling success, error callbacks, and optional 
+ * form reset behavior.
  */
 class GenericSearchForm
 {

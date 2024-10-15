@@ -97,3 +97,5 @@ class ScrollTable {
         this.__ajaxUpdateData();
     }
 }
+
+export default ScrollTable
