@@ -1,7 +1,47 @@
 import $ from "jquery";
 import {stringToDomHtml} from "./utils";
 
+
+/**
+ * An infinite scrolling table it provided infinite scrolling upon a table using the following this html markup
+ * 
+ * ```
+ * <div id="scroll" data-url="/someUrl?page=1&limit=10">
+ * 
+ *   <table>
+ *    <thead>
+ *       <!-- headers according to your needs -->
+ *    </thead>
+ *    <tbody>
+ *       <!-- Data Diplayed here -->
+ *    </tbody>
+ *   </table>
+ * 
+ * </div>
+ * ```
+ * 
+ * As youy can see a Div is used for Scrollwrapper and upon `data-url` it contains the url to fetch the next page.
+ * Upon the url in  data-url` you should alsom place any get parametes (url query) used for the data that will be displayed upon table's tbody
+ * 
+ * The data returned upon an Ajax call should be returned as `application/html`
+ * containing the content that will be placed or replaced within the tbody:
+ * 
+ * ```
+ * <tr>
+ *  <td>val1</td>
+ *  <td>val2</td>
+ *  <td>val3</td>
+ * </tr>
+ * ```
+ * 
+ * Also the server must include the following headers:
+ * - For the next page URL in the `X-NextUrl` header.
+ * - As an indication whether ajax has more data the `X-HasMore` with either true or false must be provided. True indicated that the current page retrieved is not the last one.
+ * 
+ */
 class ScrollTable {
+
+
     constructor(scrollWrapper,scrollAjaxErrorCallback) {
 
         this.__scrollWrapper = stringToDomHtml(scrollWrapper)
