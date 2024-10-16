@@ -59,7 +59,6 @@ class ScrollTable {
 
         this.__observer =new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                console.log(entry)
                 if (entry.isIntersecting) {
                     this.__ajaxUpdateData(); // Your function to append more data
                 }
@@ -97,9 +96,7 @@ class ScrollTable {
      * @private
      */
     __ajaxUpdateData(){
-        console.log("Here")
         const url =this.__scrollWrapper.getAttribute("data-url")
-        console.log(url);
         if(!url){
             return;
         }
