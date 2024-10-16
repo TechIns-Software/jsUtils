@@ -290,7 +290,6 @@ class ScrollTableSearchForm extends GenericSearchForm
     constructor(form,scrollWrapper,clearFormValueOnInit,searchErrorCallback,scrollAjaxErrorCallback){
         super(form,(data,textStatus, jqXHR)=>{
             const url = jqXHR.getResponseHeader('X-NextUrl');
-            console.log("SEARCH",url);
             this.scrollTable.overWriteData(data,url)
         },searchErrorCallback,clearFormValueOnInit);
         this.scrollTable = new ScrollTable(scrollWrapper,scrollAjaxErrorCallback)
