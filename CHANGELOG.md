@@ -1,3 +1,7 @@
+# v5.0.1 - 2024-10-16
+
+Remove console.log used for debugging.
+
 # v5.0.0 - 2024-10-15
 
 ## Added
